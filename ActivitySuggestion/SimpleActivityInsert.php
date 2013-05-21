@@ -34,6 +34,22 @@ if (isset($_GET["submit"])){
 	$tel = addslashes($_GET["tel"]);
 	$website = addslashes($_GET["website"]);
 	
+	$query = sprintf("Lock Tables `ActivityCategory` Write, `Activity` Write, `ActivityTimeSlot` Write");
+	mysql_query($query) or die( "error sql:".mysql_error() );
+	
+	$query = sprintf("select `ID` from `ActivityCategory` where `Name` like '%s' ", $category);
+	$result = mysql_query($query) or die( "error sql:".mysql_error().Unlock_Tables() );
+	
+	if ($row = mysql_fetch_row($result)){
+		$categoryID = intval($row[0]);
+	}else {
+		// insert a new category 
+		$query = sprintf ("insert into `ActivityCategory` (`Name`) value ('%s')", $category);
+		mysql_query($query) or die( "error sql:".mysql_error().Unlock_Tables() );
+		$categoryID = mysql_insert_id();
+	}
+	
+	
 	$query = sprintf(
 		"Insert Into `Activity` (
 			`Name`, 
@@ -64,15 +80,23 @@ if (isset($_GET["submit"])){
 			$tel,
 			$website,
 			$fee,
-			$category);
-	mysql_query($query) or die( "error sql:".mysql_error() );
+			$categoryID);
+	mysql_query($query) or die( "error sql:".mysql_error().Unlock_Tables() );
 	
 	$id = mysql_insert_id();
 	for ($i = 0;$i< $num;$i++){
 		$sql = sprintf("insert into `ActivityTimeSlot` (`ReferenceActivityID`, `StartTime`, `EndTime`) 
 				value(%d, '%s', '%s')", $id, $startDate[$i], $endDate[$i]);
-		mysql_query($sql) or die( "error sql:".mysql_error() );
+		mysql_query($sql) or die( "error sql:".mysql_error().Unlock_Tables() );
 	}
+	UnlockTables();
+}
+
+
+function UnlockTables(){
+	$sqlQuery = "Unlock Tables";
+	$result = mysql_query($sqlQuery);
+	return;
 }
 
 function AddslashesToGETField($index, &$retAssoc){
