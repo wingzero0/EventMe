@@ -14,7 +14,6 @@ if (isset($_GET["submit"])){
 	AddslashesToGETField("applyEndDate", $s_var);
 	//print_r($s_var);
 	
-	RepeatTimeSlot();
 	$num = intval( $_GET["numTimeSlot"] );
 	for ($i = 0;$i< $num;$i++){
 		$index = $i + 1;
@@ -89,6 +88,15 @@ if (isset($_GET["submit"])){
 				value(%d, '%s', '%s')", $id, $startDate[$i], $endDate[$i]);
 		mysql_query($sql) or die( "error sql:".mysql_error().Unlock_Tables() );
 	}
+	
+	$repeatDates = RepeatTimeSlot();
+	if ($repeatDates) {
+		for ($i = 0;$i<count($repeatDates["startDate"]);$i++){
+			$sql = sprintf("insert into `ActivityTimeSlot` (`ReferenceActivityID`, `StartTime`, `EndTime`)
+				value(%d, '%s', '%s')", $id, $repeatDates["startDate"][$i], $repeatDates["endDate"][$i]);
+			mysql_query($sql) or die( "error sql:".mysql_error().Unlock_Tables() );
+		}
+	}
 	UnlockTables();
 	
 }
@@ -96,7 +104,7 @@ if (isset($_GET["submit"])){
 function RepeatTimeSlot(){
 	if ( isset($_GET["numRepeatTimeSlot"]) && intval($_GET["numRepeatTimeSlot"]) > 0 ){
 		$num = intval($_GET["numRepeatTimeSlot"]);
-		echo $num."<br>";
+		//echo $num."<br>";
 		$retAssoc = array();
 		$startDate = array();
 		$endDate = array();
@@ -104,27 +112,50 @@ function RepeatTimeSlot(){
 			AddslashesToGETField("repeatStart".$i, $retAssoc);
 			AddslashesToGETField("repeatEnd".$i, $retAssoc);
 			$repeatWeek = intval($_GET["repeatWeek".$i]);
-			echo $repeatWeek."<br>";
-			echo $retAssoc["repeatStart".$i]."<br>";
+			//echo $repeatWeek."<br>";
+			//echo $retAssoc["repeatStart".$i]."<br>";
 			$date = DateTime::createFromFormat("Y-m-d H:i:s",$retAssoc["repeatStart".$i]);
 			$startWeekDay = intval($date->format("N"));
-			echo $startWeekDay."<br>";
+			//echo $startWeekDay."<br>";
+			$flag = true; // flag for testing repeatStart is included in checkbox or not
 			for ($j = 0;$j < $repeatWeek; $j++){
 				for ($k = 0;$k <7;$k++){
 					$targetWeekDay = ($startWeekDay + $k -1) % 7 +1 ; // weekday shift back to 0-6 and shift to 1-7
-					echo "weekDay".$targetWeekDay."<br>";
+					//echo "weekDay".$targetWeekDay."<br>";
 					if (isset($_GET["checkBox".$i.$targetWeekDay])){
-						echo ($j * 7 + $k)."<br>";
+						if ($flag == true){
+							if ($j != 0 || $k != 0){
+								// repeatStart is not included in checkbox
+								// add to $startData array manually.
+								$date = DateTime::createFromFormat("Y-m-d H:i:s",$retAssoc["repeatStart".$i]); // re-create
+								$startDate[] = $date->format("Y-m-d H:i:s");
+								
+								$date = DateTime::createFromFormat("Y-m-d H:i:s",$retAssoc["repeatEnd".$i]); // re-create
+								$endDate[] = $date->format("Y-m-d H:i:s");
+							}
+							$flag = false; // no need to check again
+						}
 						$interval = sprintf("P%dD", $j * 7 + $k);
-						echo "interval:". $interval."<br>";
 						$date = DateTime::createFromFormat("Y-m-d H:i:s",$retAssoc["repeatStart".$i]); // re-create
 						$date->add(new DateInterval($interval));
-						echo $date->format("Y-m-d H:i:s");
+						$startDate[] = $date->format("Y-m-d H:i:s");
+						
+						$date = DateTime::createFromFormat("Y-m-d H:i:s",$retAssoc["repeatEnd".$i]); // re-create
+						$date->add(new DateInterval($interval));
+						$endDate[] = $date->format("Y-m-d H:i:s");
 					}
 				}
 			}
-			exit();
 		}
+		/*
+		echo "<pre>";
+		print_r($startDate);
+		print_r($endDate);
+		echo "</pre>";
+		*/
+		return array("startDate"=>$startDate, "endDate"=>$endDate);
+	}else{
+		return NULL;
 	}
 }
 
@@ -166,6 +197,7 @@ function AddslashesToGETField($index, &$retAssoc){
   
   <script>
 	$(document).ready(function(){
+		/*
 		$("#datepickerStart1").datetimepicker({
 			timeFormat: "HH:mm:ss",
 			dateFormat: "yy-mm-dd"
@@ -175,6 +207,7 @@ function AddslashesToGETField($index, &$retAssoc){
 			timeFormat: "HH:mm:ss",
 			dateFormat: "yy-mm-dd"
 		});
+		*/
 		$("#applyStartDate").datetimepicker({
 			timeFormat: "HH:mm:ss",
 			dateFormat: "yy-mm-dd"
@@ -200,7 +233,7 @@ function AddslashesToGETField($index, &$retAssoc){
 		$("#repeatTimeSlotBlock").append("結束時間");
 		$("#repeatTimeSlotBlock").append(newRepeatEnd);
 		
-		var newRepeatWeek = $( "<input/>", {id:"repeatWeek" + num, name:"repeatWeek" + num, type:"text"});
+		var newRepeatWeek = $( "<input/>", {id:"repeatWeek" + num, name:"repeatWeek" + num, type:"text", value:2});
 		$("#repeatTimeSlotBlock").append("重覆週數");
 		$("#repeatTimeSlotBlock").append(newRepeatWeek);
 		
@@ -254,11 +287,13 @@ function AddslashesToGETField($index, &$retAssoc){
 簡介<textarea cols="50" rows="10" name="description"></textarea><br>
 報名時間<input id="applyStartDate" name="applyStartDate">至<input id="applyEndDate" name="applyEndDate"><br>
   <div id="timeSlotBlock">
+	<!--
   	個別活動時間<input id="datepickerStart1" name="datepickerStart1">至<input id="datepickerEnd1" name="datepickerEnd1"><br>
+	!-->
   </div>
   <div id="repeatTimeSlotBlock">
   </div>
-  <button id="addTimeSlot" name="addTimeSlot">增加個別時段</button><br>
+  <button id="addTimeSlot" name="addTimeSlot">增加活動時段</button><br>
   <button id="addRepeatTimeSlot" name="addRepeatTimeSlot">增加重覆時段</button><br>
 參與機構<input name="hostName"><br>
 人物<textarea cols="50" rows="5" name="people"></textarea><br>
@@ -268,7 +303,7 @@ function AddslashesToGETField($index, &$retAssoc){
 網站<input name="website"><br>
 電話<input name="tel"><br>
   <button name="submit">送出</button>
-  <input name="numTimeSlot" value="1" id="numTimeSlot" type="hidden">
+  <input name="numTimeSlot" value="0" id="numTimeSlot" type="hidden">
   <input name="numRepeatTimeSlot" value="0" id="numRepeatTimeSlot" type="hidden">
 </form>
 
