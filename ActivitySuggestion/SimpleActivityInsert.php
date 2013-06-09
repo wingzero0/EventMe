@@ -64,10 +64,11 @@ if (isset($_GET["submit"])){
 			`ApplyEndDate`,
 			`Tel`,
 			`WebSite`, 
+			`Poster`,
 			`Fee`, 
 			`Category`) 
 		value ('%s', '%s', '%s', '%s', '%s', 
-			%lf, %lf, '%s', '%s', '%s', '%s', %d, '%s'
+			%lf, %lf, '%s', '%s', '%s', '%s', '%s', %d, '%s'
 		)",
 			$name, 
 			$description, 
