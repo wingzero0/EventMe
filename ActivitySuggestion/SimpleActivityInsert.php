@@ -32,6 +32,8 @@ if (isset($_GET["submit"])){
 	$fee = intval( addslashes($_GET["fee"]) );
 	$tel = addslashes($_GET["tel"]);
 	$website = addslashes($_GET["website"]);
+	AddslashesToGETField("poster", $s_var);
+	//$s_var["poster"] = "test link";
 	
 	$query = sprintf("Lock Tables `ActivityCategory` Write, `Activity` Write, `ActivityTimeSlot` Write");
 	mysql_query($query) or die( "error sql:".mysql_error() );
@@ -78,9 +80,10 @@ if (isset($_GET["submit"])){
 			$s_var["applyEndDate"],
 			$tel,
 			$website,
+			$s_var["poster"],
 			$fee,
 			$categoryID);
-	mysql_query($query) or die( "error sql:".mysql_error().Unlock_Tables() );
+	mysql_query($query) or die( "error sql:".mysql_error().UnlockTables() );
 	
 	$id = mysql_insert_id();
 	for ($i = 0;$i< $num;$i++){
@@ -166,7 +169,11 @@ function UnlockTables(){
 }
 
 function AddslashesToGETField($index, &$retAssoc){
-	$retAssoc[$index] = addslashes($_GET[$index]);
+	if (isset($_GET[$index])){
+		$retAssoc[$index] = addslashes($_GET[$index]);
+	}else{
+		$retAssoc[$index] = "";
+	}
 	return $retAssoc;
 }
 
@@ -301,6 +308,7 @@ function AddslashesToGETField($index, &$retAssoc){
 地理座標 x:<input name="geoLocationLongitude"> y:<input name="geoLocationLatitude"><br>
 費用<input name="fee"><br>
 網站<input name="website"><br>
+海報連結<input name="poster"><br>
 電話<input name="tel"><br>
   <button name="submit">送出</button>
   <input name="numTimeSlot" value="0" id="numTimeSlot" type="hidden">
