@@ -1,8 +1,22 @@
 <?php
+/*
+ * Return the interested list of a user
+ * GET parameter
+ * 1. "uid": int value
+ * 		the target user id
+ * 
+ * return value: json int array
+ * 		it will return the an array of interested activity ID for the target user
+ *  
+ * sample usage:
+ * recommendList.php?uid=1
+ * [386,410,399,412,388,422,401,458,411,391]
+ */
 
 require_once 'HttpClient.class.php';
 require_once 'simple_html_dom.php';
 require_once 'connection.php';
+require_once 'utility.php';
 
 class RecommendList{
 	public function __construct(){
@@ -10,8 +24,13 @@ class RecommendList{
 	}
 	public function QueryByUserProfile($uid){
 		global $g_mysqli;
-		$sql = sprintf("SELECT K.Keyword FROM UserProfile U, Keyword K 
-				WHERE U.UserID = %d AND U.KeywordID = K.id", $uid);
+		$sql = sprintf(
+				"SELECT U.ProfileID, K.Keyword, PK.weight
+				FROM UserProfile U, ProfileKeyword PK, Keyword K
+				WHERE U.UserID = %d
+				AND U.ProfileID = PK.profileID
+				AND PK.keywordID = K.id",
+				$uid);
 		$result = $g_mysqli->query($sql);
 		$keywords = array();
 		while($row = $result->fetch_assoc()){
@@ -58,9 +77,11 @@ class RecommendList{
 $keywords = array();
 $keywords[0] = $argv[1];
 */
+
+$s_var = array();
+Utility::AddslashesToGETField("uid", $s_var, "int");
 $re = new RecommendList();
-$ids = $re->QueryByUserProfile(1);
-//$ids = $re->Query($keywords);
+$ids = $re->QueryByUserProfile($s_var["uid"]);
 
 echo json_encode($ids);
 
