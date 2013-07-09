@@ -36,9 +36,10 @@ if (isset($_GET["op"]) && $_GET["op"] == "insert"){
 	Utility::AddslashesToGETField("num", $s_var); // number of keyword in the profile
 	
 	$num = intval($s_var["num"]);
+	Utility::AddslashesToGETField("weight", $s_var, "double"); // weighting should be double, one weighting for each keyword
 	for ($i = 0;$i<$num ;$i++){
 		Utility::AddslashesToGETField("keywordID".$i, $s_var, "int"); // each keywordID should be int
-		Utility::AddslashesToGETField("weight".$i, $s_var, "double"); // each weighting should be double
+		// Utility::AddslashesToGETField("weight".$i, $s_var, "double"); // each weighting should be double
 	}
 	
 	$sql = 'lock tables `Keyword` read, `UserProfile` write, `ProfileKeyword` write';
@@ -84,7 +85,8 @@ if (isset($_GET["op"]) && $_GET["op"] == "insert"){
 	// insert profile id, keyword id to ProfileKeyword table
 	for ($i = 0;$i<$num;$i++){
 		$sql = sprintf("insert into `ProfileKeyword` (`ProfileID`, `KeywordID`, `Weight`) value (%d, %d, %lf)",
-				$profileID, $s_var["keywordID".$i], $s_var["weight".$i]);
+				//$profileID, $s_var["keywordID".$i], $s_var["weight".$i]);
+				$profileID, $s_var["keywordID".$i], $s_var["weight"]);
 		$result = $g_mysqli->query($sql);
 		
 		if ($g_mysqli->error){

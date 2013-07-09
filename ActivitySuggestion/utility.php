@@ -23,7 +23,18 @@ class Utility{
 				
 			}
 		}else{
-			$retAssoc[$index] = "";
+			switch ($dataType){
+				case "int":
+					$retAssoc[$index] = 0;
+					break;
+				case "double":
+					$retAssoc[$index] = 0.0;
+					break;
+				case "string":
+				default:
+					$retAssoc[$index] = "";
+					break;
+			}
 		}
 		return $retAssoc;
 	}
