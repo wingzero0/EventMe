@@ -1,6 +1,6 @@
 <?php
 
-/* handle the keyword db request:
+/* handle the keyword table request:
  * GET parameter
  * 1. "op": str value should be "insert" or "getIDs"
  * 		if value is "insert", program will insert keywords and corresponding idf to db and return 
@@ -9,7 +9,7 @@
  * 		is not exist in db, its related id and idf will be 0 and 0.0;
  * 2. "num": int value indicate that how many keywords will be queried
  * 		if it is bigger than 0, it means that there will be 
- * 			"keyword0", "keyword1" ... "keywordX" (X = num) in the Get parameter for query
+ * 			"keyword0", "keyword1" ... "keywordX" (X = num - 1) in the Get parameter for query
  * 3. "keywordX": str value
  * 4. "idfX": double value
  * 		if "op" value equals to "insert", it must be specified the idf value for each keyword. 
