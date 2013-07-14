@@ -1,5 +1,10 @@
 <?php
 
+define("CLASSPATH", "/var/www/ActivitySuggestion/PhpClass/");
+define("LIBPATH", "/var/www/ActivitySuggestion/PhpLib/");
+define("CONNECTIONPATH", "/var/www/ActivitySuggestion/");
+
+
 class Utility{
 	public static function UnlockTables($sqlObj){
 		$sql = "Unlock Tables";
@@ -20,7 +25,36 @@ class Utility{
 				default:
 					$retAssoc[$index] = addslashes($_GET[$index]);
 					break;
-				
+			}
+		}else{
+			switch ($dataType){
+				case "int":
+					$retAssoc[$index] = 0;
+					break;
+				case "double":
+					$retAssoc[$index] = 0.0;
+					break;
+				case "string":
+				default:
+					$retAssoc[$index] = "";
+					break;
+			}
+		}
+		return $retAssoc;
+	}
+	public static function AddslashesToPOSTField($index, &$retAssoc, $dataType = "string"){
+		if (isset($_POST[$index])){
+			switch ($dataType){
+				case "int":
+					$retAssoc[$index] = intval($_POST[$index]);
+					break;
+				case "double":
+					$retAssoc[$index] = doubleval($_POST[$index]);
+					break;
+				case "string":
+				default:
+					$retAssoc[$index] = addslashes($_POST[$index]);
+					break;
 			}
 		}else{
 			switch ($dataType){

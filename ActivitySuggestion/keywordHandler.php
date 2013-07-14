@@ -26,10 +26,10 @@
  *  json["objs"][x]["id"]: is the id of kewyordX
  *  json["objs"][x]["idf"]: is the idf of kewyordX
  *  
- * ex path = "keywordHandler.php?op=insert&num=3&keyword0=澳門&keyword1=科技&keyword2=人才&idf0=0.234&idf1=0.456&idf2=789"
+ * ex path = "http://140.112.29.228/ActivitySuggestion/keywordHandler.php?op=insert&num=3&keyword0=澳門&keyword1=科技&keyword2=人才&idf0=0.234&idf1=0.456&idf2=789"
  * return json {"ret":1,"ids":[1,5,10]}
  * 
- * ex path = "keywordHandler.php?op=getIDs&num=3&keyword0=澳門&keyword1=科技&keyword2=天才" 
+ * ex path = "http://140.112.29.228/ActivitySuggestion/keywordHandler.php?op=getIDs&num=3&keyword0=澳門&keyword1=科技&keyword2=天才" 
  * return json {"ret":1,"objs":[{"id":1,"idf":0.234},{"id":5,"idf":0.456},{"id":0,"idf":0}]}
  */
 

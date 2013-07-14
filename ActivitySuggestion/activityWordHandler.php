@@ -155,11 +155,4 @@ if (isset($_GET["op"]) && $_GET["op"] == "insert"){
 	echo json_encode($ret);
 	return;
 }
-
-Class ActivityDB{
-	private $sqlObj;
-	public function __construct($sql){
-		$this->sqlObj = $sql;
-	}
-}
 ?>

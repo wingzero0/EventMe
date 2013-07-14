@@ -60,6 +60,7 @@ class UserProfile{
 		return $ret;
 	}
 	public static function InsertUserProfile($s_var){
+		// s_var should contain value in index "num", "keywordIDX", "userID";
 		global $g_mysqli;
 		
 		$num = $s_var["num"];

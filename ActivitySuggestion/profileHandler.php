@@ -41,9 +41,9 @@
  *  return json {"ret":1,"sqlResult":[{"profileID":"5","keywordID":"2","weight":"11.11"},{"profileID":"5","keywordID":"3","weight":"11.11"}]}
  */
 
-require_once 'connection.php';
-require_once "utility.php";
-require_once "userProfile.php";
+require_once __DIR__."/utility.php";
+require_once CONNECTIONPATH . "/connection.php";
+require_once CLASSPATH . "/userProfile.php";
 
 $ret = array();
 $ret["ret"] = -1;
