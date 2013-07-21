@@ -32,7 +32,8 @@ class solr{
 		$pageContents = $client->getContent();
 	
 		//echo $pageContents;
-		$ret["activityIDs"] = $this->PageParsing($pageContents);
+		//$ret["activityIDs"] = $this->PageParsing($pageContents);
+		$ret["ids"] = $this->PageParsing($pageContents);
 		$ret["ret"] = 1;
 		return $ret;
 	}

@@ -5,8 +5,6 @@
  * 	"q": string value, query
  * 
  * Return value
- *  
- * For "op" == "default" 
  * 	json["ret"]: should be 1 if operation is successful
  * 	json["ids"]: the list of activity
  *  json["ids"][x]: the activity id

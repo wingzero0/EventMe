@@ -1,158 +1,130 @@
 <?php 
 /* 
  * Handle the ActivityWord table request:
- * GET parameter (input parameter)
- * 1. "op": string value, should be "insert" or "get"
- * 		if value equals to "insert", GET parameter "activityID", "num", "keywordIDX", "tfX" are also required
- * 		if value equals to "get", GET parameter "activityID" are also required 
- * 2. "activityID": int value, the reference of activity id in table `Activity` 
- * 3. "num": int value, indicate that how many keywords and their related term frequency will appear.
- * 		"keywordID0", "keywordID1", ..., "keywordIDX" (X = num -1) will be required
- * 		"tf0", "tf1", ..., "tfX" (X = num -1) will be required
- * 4. "keywordIDX": int value, the reference of keyword id in table `Keyword`
- * 5. "tfX": int value, indicate the term frequency that the keywordX appear in the related activity.
  * 
- * Return value 
- * For "op" == "insert" 
- * 	json["ret"]: should be 1 if operation is successful
- * For "op" == "get"
- * 	json["ret"]: should be 1 if operation is successful
- *  json["objs"]: should be an array of objects
- *  json["objs"][x]["keywordID"]: is the id of kewyordX of the target activity
- *  json["objs"][x]["tf"]: is term freq of kewyordX of the target activity
+ * It provide 2 function
+ * 
+ * Function:
+ * 1. Insert related words (in terms / plain text) to ActivityWord table for the specific ActivityID
+ * Input fields (post fields):
+ * - "op": str value, must be "insertActivityWordByPlainTxt"
+ * - "activityID": int value, the id of target activity
+ * - "num": int value, indicate that how many keywords will be queried 
+ * 			if it is bigger than 0, it means that there will be 
+ * 			"keyword0", "keyword1" ... "keywordX" (X = num - 1)
+ * - "keywordX": str value, each one is a term or vocab.
+ * - "tfX": int value, it is the corresponding value of "keywordX"
+ * Return json:
+ * - "ret": if it is (int) 1, the operation is successful. If it is -1, the operation is fail.
+ * - "error": If "ret" == -1, it will set to be as error message
+ * 
+ * 2. Insert related words (in keywords id) to ActivityWord table for the specific ActivityID
+ * Input fields (post fields):
+ * - "op": str value, must be "insertActivityWordByKeywordID"
+ * - "activityID": same as function 1
+ * - "num": int value, indicate that how many keywords will be queried 
+ * 			if it is bigger than 0, it means that there will be 
+ * 			"keywordID0", "keywordID1" ... "keywordIDX" (X = num - 1)
+ * - "keywordIDX": int value, the keyword id of x-th keyword
+ * - "tfX": int value, it is the corresponding value of "keywordIDX"
+ * Return json:
+ * - "ret": same as function 1
+ * - "error": same as function 1
+ * 
+ * 3. Get Activity keyword id and its corresponding TF
+ * Input fields (post fields):
+ * - "op": str value, must be "getActivityWordWithKeywordID"
+ * - "activityID": same as function 1
+ * Return json:
+ * - "ret": same as function 1
+ * - "error": same as function 1
+ * - "objs": an array of keywords' objects
+ *  "objs"[x]: the x-th keywords' objects of the target activity 
+ *  "objs"[x]["keywordID"]: int val, the id of x-th kewyord in the activity
+ *  "objs"[x]["tf"]: int val, term freq of x-th kewyord in the activity
  *  
- * insert example
- * path = http://140.112.29.228/ActivitySuggestion/activityWordHandler.php?op=insert&num=2&activityID=1&keywordID0=1&keywordID1=5&tf0=10&tf1=222
- * return json {"ret":1}
- * 
- * get example
- * path = http://140.112.29.228/ActivitySuggestion/activityWordHandler.php?op=get&activityID=1
- * return json {"ret":1,"objs":[{"keywordID":1,"tf":10},{"keywordID":5,"tf":222}]}
+ *  the return example {"ret":1,"objs":[{"keywordID":1,"tf":5},{"keywordID":2,"tf":55}]}
+ *  
+ *  
+ * 4. Get Activity keyword (plain text), keyword ID and their corresponding TF
+ * Input fields (post fields):
+ * - "op": str value, must be "getActivityWordWithKeyword"
+ * - "activityID": same as function 1
+ * Return json:
+ * - "ret": same as function 1
+ * - "error": same as function 1
+ * - "objs": an array of keywords' objects
+ *  "objs"[x]: the x-th keywords' objects of the target activity 
+ *  "objs"[x]["keyword"]: int val, the plain text of x-th kewyord in the activity
+ *  "objs"[x]["keywordID"]: int val, the id of x-th kewyord in the activity
+ *  "objs"[x]["tf"]: int val, term freq of x-th kewyord in the activity
+ *  
+ *  the return example {"ret":1,"objs":[{"keyword":"澳門","keywordID":1,"tf":3},{"keyword":"科技","keywordID":5,"tf":207}]}
  */
-require_once 'utility.php';
-require_once 'connection.php';
+require_once __DIR__ . '/utility.php';
+require_once CONNECTIONPATH .'/connection.php';
+require_once CLASSPATH . '/activityWord.php';
 
 $s_var = array();
 $ret = array();
 $ret['ret'] = -1;
 
-if (isset($_GET["op"]) && $_GET["op"] == "insert"){
-	// for insert or update activity keyword 
-
+if (isset($_POST["op"]) && $_POST["op"] == "insertActivityWordByPlainTxt"){
 	// get var
 	$s_var = array();
-	Utility::AddslashesToGETField("activityID", $s_var, "int");
-	Utility::AddslashesToGETField("num", $s_var, "int");
+	Utility::AddslashesToPOSTField("activityID", $s_var, "int");
+	Utility::AddslashesToPOSTField("num", $s_var, "int");
 	$num = $s_var["num"];
 	
+	$s_keywords = array();
+	$s_tfs = array();
 	for ($i = 0;$i<$num ;$i++){
-		Utility::AddslashesToGETField("keywordID".$i, $s_var, "int");
-		Utility::AddslashesToGETField("tf".$i, $s_var, "int");
+		$s_keywords[$i] = addslashes($_POST["keyword".$i]);
+		$s_tfs[$i] = addslashes($_POST["tf".$i]);
 	}
 	
-	// start transaction;
-	$flag = $g_mysqli->autocommit(false);
-	if (!$flag){
-		$ret['error'] = "db error, can't disable autocommit";
-		echo json_encode($ret);
-		return;
-	}
+	$aw = new ActivityWord();
 	
-	// test if "activity, keyword" pair is in database
-	// if yes, update keyword's tf
-	// if no, insert the "activity, keyword" pair and its corresponding tf
-	$exist = array();
-	for ($i = 0;$i< $num;$i++){
-		$sql = sprintf("select `id` from `ActivityWord` where `ActivityID` = %d AND `KeywordID` = %d",
-				$s_var["activityID"], $s_var["keywordID".$i]);
-		//echo $sql."<br>";
-		$result = $g_mysqli->query($sql);
+	$ret = $aw->InsertActivityWordByPlainTxt($s_var["activityID"], $s_keywords, $s_tfs);
 	
-		if ($g_mysqli->error){
-			$ret['error'] = "sql error:" . $sql . " ". $g_mysqli->error;
-			$flag = $g_mysqli->rollback();
-			if (!$flag){
-				$ret['error'] .= " db error, rollback fail";
-			}
-			echo json_encode($ret);
-			return;
-		}
-	
-		if ($row = $result->fetch_row()){
-			$exist[$i] = intval($row[0]);
-		}else{
-			$exist[$i] = 0;
-		}
-	}
-	
-	// insert if not exist
-	for ($i = 0;$i<$num;$i++){
-		if ($exist[$i]){
-			$sql = sprintf("update `ActivityWord` set `TermFreq` = %d where `id` = %d",
-					$s_var["tf".$i], $exist[$i]);
-			$result = $g_mysqli->query($sql);
-	
-			if ($g_mysqli->error){
-				$ret['error'] = "sql error:" . $sql . " ". $g_mysqli->error;
-				$flag = $g_mysqli->rollback();
-				if (!$flag){
-					$ret['error'] .= " db error, rollback fail";
-				}
-				echo json_encode($ret);
-				return;
-			}
-		}else{
-			$sql = sprintf("insert into `ActivityWord` (`ActivityID`, `KeywordID`, `TermFreq`) value (%d, %d, %d)",
-					$s_var["activityID"], $s_var["keywordID".$i], $s_var["tf".$i]);
-			//echo $sql;
-			$result = $g_mysqli->query($sql);
-				
-			if ($g_mysqli->error){
-				$ret['error'] = "sql error:" . $sql . " ". $g_mysqli->error;
-				$flag = $g_mysqli->rollback();
-				if (!$flag){
-					$ret['error'] .= " db error, rollback fail";
-				}
-				echo json_encode($ret);
-				return;
-			}
-		}
-	}
-	
-	$flag = $g_mysqli->commit();
-	if (!$flag){
-		$ret['error'] = " db error, commit fail";
-	}else{
-		$ret['ret'] = 1;
-	}
 	echo json_encode($ret);
-	return;
-}else if (isset($_GET["op"]) && $_GET["op"] == "get"){
+}else if (isset($_POST["op"]) && $_POST["op"] == "insertActivityWordByKeywordID"){
+	// for insert or update activity keyword 
+	
 	// get var
 	$s_var = array();
-	Utility::AddslashesToGETField("activityID", $s_var, "int");
+	Utility::AddslashesToPOSTField("activityID", $s_var, "int");
+	Utility::AddslashesToPOSTField("num", $s_var, "int");
+	$num = $s_var["num"];
 	
-	$sql = sprintf("select `KeywordID`, `TermFreq` from `ActivityWord` where `ActivityID` = %d order by `KeywordID`",
-				$s_var["activityID"]);
-	$result = $g_mysqli->query($sql);
-	
-	if ($g_mysqli->error){
-		$ret['error'] = "sql error:" . $sql . " ". $g_mysqli->error;
-		echo json_encode($ret);
-		return;
-	}
-
-	$ret["objs"] = array();
-	$i = 0;
-	while ($row = $result->fetch_row()){
-		$ret["objs"][$i]['keywordID'] = intval($row[0]);
-		$ret["objs"][$i]['tf'] = intval($row[1]);
-		$i++;
+	$s_keywordIDs = array();
+	$s_tfs = array();
+	for ($i = 0;$i<$num ;$i++){
+		$s_keywordIDs[$i] = intval( addslashes($_POST["keywordID".$i]) );
+		$s_tfs[$i] = intval( addslashes($_POST["tf".$i]) );
 	}
 	
-	$ret['ret'] = 1;
+	$aw = new ActivityWord();
+	
+	$ret = $aw->InsertActivityWordByKeywordID($s_var["activityID"], $s_keywordIDs, $s_tfs);
 	
 	echo json_encode($ret);
-	return;
+	
+}else if (isset($_POST["op"]) && $_POST["op"] == "getActivityWordWithKeywordID"){
+	// get var
+	$s_var = array();
+	Utility::AddslashesToPOSTField("activityID", $s_var, "int");
+	
+	$aw = new ActivityWord();
+	$ret = $aw->GetActivityWordWithKeywordID($s_var["activityID"]);
+	echo json_encode($ret);
+}else if (isset($_POST["op"]) && $_POST["op"] == "getActivityWordWithKeyword"){
+	// get var
+	$s_var = array();
+	Utility::AddslashesToPOSTField("activityID", $s_var, "int");
+	
+	$aw = new ActivityWord();
+	$ret = $aw->GetActivityWordWithKeyword($s_var["activityID"]);
+	echo Utility::DecodeUnicode(json_encode($ret));
 }
 ?>
