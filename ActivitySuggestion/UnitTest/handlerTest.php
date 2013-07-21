@@ -134,6 +134,75 @@ class HandlerTest extends PHPUnit_Framework_TestCase{
 		var_dump($pageContents);
 		$this->assertEquals('0', $pageContents);
 	}
+	public function testKeywordHandler(){
+		$client = new HttpClient('localhost', 80);
+		//$client->setDebug(true);
+		
+		$path = "/ActivitySuggestion/keywordHandler.php";
+		
+		$postData = array();
+		$postData["op"]="insert";
+		$postData["num"]="3";
+		$postData["keyword0"]="澳門";
+		$postData["keyword1"]="科技";
+		$postData["keyword2"]="人才";
+		$postData["idf0"] = "0.234";
+		$postData["idf1"] ="0.456";
+		$postData["idf2"] ="789";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"ids":[1,5,6]}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="getIDFByTerm";
+		$postData["num"]="3";
+		$postData["keyword0"]="澳門";
+		$postData["keyword1"]="科技";
+		$postData["keyword2"]="天才";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":[0.234,0.456,0]}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="getIDFByID";
+		$postData["num"]="3";
+		$postData["id0"]="1";
+		$postData["id1"]="2";
+		$postData["id2"]="30";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":[0.234,0.1,0]}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="getIDByTerm";
+		$postData["num"]="3";
+		$postData["keyword0"]="澳門";
+		$postData["keyword1"]="科技";
+		$postData["keyword2"]="天才";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":[1,5,0]}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="getTermByID";
+		$postData["num"]="3";
+		$postData["id0"]="1";
+		$postData["id1"]="5";
+		$postData["id2"]="30";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":["澳門","科技",""]}', $pageContents);
+	}
 }
 
 ?>

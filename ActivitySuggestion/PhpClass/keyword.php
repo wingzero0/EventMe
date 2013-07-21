@@ -13,6 +13,74 @@ class Keyword{
 			$this->mysqli = $g_mysqli;
 		}
 	}
+	public function Insert($s_keywords, $s_idfs){
+		$ret = array();
+		$ret["ret"] = -1;
+		
+		$sql = 'lock tables `Keyword` write';
+		$this->mysqli->query($sql);
+		
+		if ($this->mysqli->error){
+			$ret["error"] = "error sql:".$this->mysqli->error;
+			return $ret;
+		}
+		
+		// test if keyword in database
+		// if yes, update keyword's idf
+		// if no, insert the keyword term and it corresponding idf
+		$exist = array();
+		$num = count($s_keywords);
+		for ($i = 0;$i< $num;$i++){
+			$sql = sprintf("select `id` from `Keyword` where `Keyword`.`keyword` like '%s'",
+					$s_keywords[$i]);
+			
+			$result = $this->mysqli->query($sql);
+		
+			if ($this->mysqli->error){
+				Utility::UnlockTables($this->mysqli);
+				$ret["ret"] = "error sql:".$this->mysqli->error;
+				return $ret;
+			}
+		
+			if ($row = $result->fetch_row()){
+				$exist[$i] = intval($row[0]);
+			}else{
+				$exist[$i] = 0;
+			}
+		}
+		
+		// insert if not exist
+		for ($i = 0;$i<$num;$i++){
+			if ($exist[$i]){
+				$sql = sprintf("update `Keyword` set `InverseDocFreq` = '%lf' where `id` = %d",
+						$s_idfs[$i], $exist[$i]);
+				$result = $this->mysqli->query($sql);
+		
+				if ($this->mysqli->error){
+					Utility::UnlockTables($this->mysqli);
+					$ret["ret"] = "error sql:".$this->mysqli->error;
+					return $ret;
+				}
+			}else{
+				$sql = sprintf("insert into `Keyword` (`Keyword`, `InverseDocFreq`) value ('%s', '%lf')",
+						$s_var["keyword".$i], $s_var["idf".$i]);
+				//echo $sql;
+				$result = $this->mysqli->query($sql);
+					
+				if ($this->mysqli->error){
+					Utility::UnlockTables($this->mysqli);
+					$ret["ret"] = "error sql:".$this->mysqli->error;
+					return $ret;
+				}
+				$exist[$i] = $this->mysqli->insert_id;
+			}
+		}
+		
+		Utility::UnlockTables($this->mysqli);
+		$ret['ret'] = 1;
+		$ret['ids'] = $exist;
+		return $ret;
+	}
 	public function GetIDByTerm($s_term){
 		$ret = $this->GetByTerm($s_term);
 		if ($ret["ret"] == 1 && !empty($ret["sqlResult"]) ){
