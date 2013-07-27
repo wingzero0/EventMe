@@ -3,18 +3,13 @@
  * provide activity db request
  */
 
-require_once __DIR__."/../utility.php";
-require_once CONNECTIONPATH ."/connection.php";
+require_once __DIR__."/dbBase.php";
 
-class Activity{
+class Activity extends DbBase{
 	protected $mysqli;
+	private $uid;
 	public function __construct($sqlObj = NULL){
-		if ($sqlObj != NULL){
-			$this->mysqli = $sqlObj;
-		}else{
-			global $g_mysqli;
-			$this->mysqli = $g_mysqli; 
-		}
+		parent::__construct($sqlObj);
 	}
 	public function InsertActivity(){
 		
@@ -75,5 +70,171 @@ class Activity{
 		$ret["ret"] = 1;
 		return $ret;
 	}
+	public function GetActivityDescriptionByID($id, $operator = ">=" ,$limit = "10"){
+		// for preprocessing, get content
+		$sql = sprintf(
+				"SELECT id, Description
+				FROM Activity
+				WHERE id %s %d
+				limit %d",
+				$operator, $id, $limit
+		);
+		$ret = array();
+		$ret["ret"] = -1;
+		//$ret["sql"] = $sql;
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["sqlResult"] = array();
+		$i = 0;
+		while($row = $result->fetch_assoc()){
+			$ret["sqlResult"][$i]["id"] = intval($row["id"]);
+			$ret["sqlResult"][$i]["description"] = $row["Description"];
+			$i++;
+		}
+		
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	public function InsertActivityComment($s_id, $s_uid,$s_comment){ // id for activity id
+		$sql = sprintf(
+				"insert into ActivityComment (ActivityID, UserID, Comment) value
+				(%d, %d, '%s')", 
+				$s_id, $s_uid, $s_comment);
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	
+	public function GetActivityComment($s_id){
+		$sql = sprintf(
+				"select UserID, Comment from ActivityComment where ActivityID = %d",
+				$s_id);
+		
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["sqlResult"] = array();
+		$i = 0;
+		while($row = $result->fetch_assoc()){
+			$ret["sqlResult"][$i]["UserID"] = intval($row["UserID"]);
+			$ret["sqlResult"][$i]["Comment"] = $row["Comment"];
+			$i++;
+		}
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	
+	public function GetActivityLikeCount($s_id){
+		$sql = sprintf(
+				"select count(*) from ActivityLike where ActivityID = %d",
+				$s_id);
+		
+		return $this->ActivityLike($sql);
+	}
+	public function IsActivityLikeByUser($s_id, $s_uid){
+		$sql = sprintf(
+				"select count(*) from ActivityLike where ActivityID = %d and UserID = %d",
+				$s_id, $s_uid);
+		return $this->ActivityLike($sql);
+	}
+	public function SetUnsetActivityLike($s_id, $s_uid, $boolFlag){
+		
+		$ret = $this->InitRetArray();
+		
+		
+		if (!$boolFlag){ // unset
+			$sql = sprintf(
+					"DELETE FROM ActivityLike WHERE ActivityID = %d AND UserID = %d",
+					$s_id, $s_uid);
+			$result = $this->mysqli->query($sql);
+		}else{ // set
+			$sql = "Lock Tables ActivityLike Write";
+			$this->mysqli->query($sql);
+			if ($this->mysqli->error){
+				$ret['error'] = "sql error:" . $sql . " ". $this->mysqli->error;
+				return $ret;
+			}
+
+			// check before set
+			$sql = sprintf(
+					"select * from ActivityLike where ActivityID = %d and UserID = %d",
+					$s_id, $s_uid);
+			$result = $this->mysqli->query($sql);
+			
+			// if not exists
+			if ( !$result->fetch_row()){
+				$sql = sprintf(
+						"Insert into ActivityLike (ActivityID,UserID) value (%d, %d)",
+						$s_id, $s_uid);
+				$result = $this->mysqli->query($sql);
+			}
+			
+			if ($this->mysqli->error){
+				$ret['error'] = "sql error:" . $sql . " ". $this->mysqli->error;
+				$this->UnlockTables();
+				return $ret;
+			}else{
+				$this->UnlockTables();
+			}
+		}
+		
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	private function ActivityLike($sql){
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		if ($row = $result->fetch_row()){
+			$ret["sqlResult"] = intval($row[0]);
+		}
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	/*
+	private function _GetActivityComment($sql){
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["sqlResult"] = array();
+		$i = 0;
+		while($row = $result->fetch_assoc()){
+			$ret["sqlResult"][$i] = $row;
+		}
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	public function GetActivityCommentByUserID($s_id, $s_uid){
+		$sql = sprintf(
+				"select Comment from ActivityComment where id = %d and UserID = %d",
+				$s_id, $s_uid);
+		return $this->GetActivityComment($sql);
+	}
+		
+	public function GetActivityCommentByEmail($s_id, $s_mail){
+		$sql = sprintf(
+				"select Comment from ActivityComment where id = %d and UserID in 
+					(select id from User where Email like '%s')",
+				$s_id, $s_mail);
+		return $this->GetActivityComment($sql);
+		
+	}*/
 }
 ?>

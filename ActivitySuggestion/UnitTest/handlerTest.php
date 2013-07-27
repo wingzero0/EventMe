@@ -4,6 +4,7 @@ require_once __DIR__ . '/../utility.php';
 require_once LIBPATH . '/HttpClient.class.php';
 
 class HandlerTest extends PHPUnit_Framework_TestCase{
+	/*
 	public function testActivityWordHandler(){
 		$client = new HttpClient('localhost', 80);
 		//$client->setDebug(true);
@@ -202,6 +203,107 @@ class HandlerTest extends PHPUnit_Framework_TestCase{
 		$pageContents = $client->getContent();
 		var_dump($pageContents);
 		$this->assertEquals('{"ret":1,"val":["澳門","科技",""]}', $pageContents);
+	}
+	*/
+	public function testActivityHandler(){
+		$client = new HttpClient('localhost', 80);
+		//$client->setDebug(true);
+		
+		$path = "/ActivitySuggestion/activityHandler.php";
+		
+		$postData = array();
+		$postData["op"]="getActivityComment";
+		$postData["id"]="1";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"objs":[{"UserID":1,"Comment":"suck"},{"UserID":2,"Comment":"很辛苦的事"}]}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="insertActivityComment";
+		$postData["id"]="3";
+		$postData["userID"] = "1";
+		$postData["comment"] = "寫程式有這樣好玩嗎？";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="getActivityLikeCount";
+		$postData["id"]="1";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":2}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="checkLike";
+		$postData["id"]="3";
+		$postData["userID"] = "1";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":0}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="checkLike";
+		$postData["id"]="1";
+		$postData["userID"] = "2";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"val":1}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="setLike";
+		$postData["id"]="4";
+		$postData["userID"] = "2";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="setLike";
+		$postData["id"]="3";
+		$postData["userID"] = "2";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1}', $pageContents);
+		
+		$postData = array();
+		$postData["op"]="unsetLike";
+		$postData["id"]="3";
+		$postData["userID"] = "2";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1}', $pageContents);
+	}
+	public function testKeywordHandler(){
+		$client = new HttpClient('localhost', 80);
+		//$client->setDebug(true);
+	
+		$path = "/ActivitySuggestion/userBrowsingRecordHandler.php";
+	
+		$postData = array();
+		$postData["op"]="getActivityIDByUID";
+		$postData["uid"]="1";
+		
+		$ret = $client->post($path, $postData);
+		$pageContents = $client->getContent();
+		var_dump($pageContents);
+		$this->assertEquals('{"ret":1,"activityID":[399,410]}', $pageContents);
 	}
 }
 

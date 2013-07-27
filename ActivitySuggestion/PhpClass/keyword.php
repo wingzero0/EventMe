@@ -38,7 +38,7 @@ class Keyword{
 		
 			if ($this->mysqli->error){
 				Utility::UnlockTables($this->mysqli);
-				$ret["ret"] = "error sql:".$this->mysqli->error;
+				$ret["error"] = "error sql:".$this->mysqli->error;
 				return $ret;
 			}
 		
@@ -58,18 +58,18 @@ class Keyword{
 		
 				if ($this->mysqli->error){
 					Utility::UnlockTables($this->mysqli);
-					$ret["ret"] = "error sql:".$this->mysqli->error;
+					$ret["error"] = "error sql:".$this->mysqli->error;
 					return $ret;
 				}
 			}else{
 				$sql = sprintf("insert into `Keyword` (`Keyword`, `InverseDocFreq`) value ('%s', '%lf')",
-						$s_var["keyword".$i], $s_var["idf".$i]);
+						$s_keywords[$i], $s_idfs[$i]);
 				//echo $sql;
 				$result = $this->mysqli->query($sql);
 					
 				if ($this->mysqli->error){
 					Utility::UnlockTables($this->mysqli);
-					$ret["ret"] = "error sql:".$this->mysqli->error;
+					$ret["error"] = "error sql:".$this->mysqli->error;
 					return $ret;
 				}
 				$exist[$i] = $this->mysqli->insert_id;
