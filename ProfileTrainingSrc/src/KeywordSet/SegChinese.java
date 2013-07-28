@@ -46,9 +46,9 @@ public class SegChinese {
     	String segment = segWords(txt, " | ");
 		segmentArrary = segment.split(" \\| ");
 		// Debug
-		for(int i=0;i<segmentArrary.length;i++){
-	    	System.out.println(segmentArrary[i]);
-		} 
+		//for(int i=0;i<segmentArrary.length;i++){
+	    //	System.out.println(segmentArrary[i]);
+		//} 
 		
 		return segmentArrary;
 	}

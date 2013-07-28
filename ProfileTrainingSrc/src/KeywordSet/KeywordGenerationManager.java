@@ -61,9 +61,9 @@ public class KeywordGenerationManager extends SegChinese {
 		    segsTemp = list.toArray(new String[list.size()]);
 		      
 			// debug 
-			for(int i=0;i<segsTemp.length;i++){
-		    	System.out.println("after stop word " + segsTemp[i]);
-			} 
+			//for(int i=0;i<segsTemp.length;i++){
+		    //	System.out.println("after stop word " + segsTemp[i]);
+			//} 
 			
 			
 			return segsTemp;

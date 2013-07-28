@@ -104,7 +104,8 @@ public class testWithDB {
 			        }  
 		        }    
 		        
-		        activityManager.updateKeywordsAndTFsToDatabase(keywordsWithTFs);
+		        //activityManager.updateKeywordsAndTFsToDatabase(keywordsWithTFs);
+		        activityManager.updateKeywordsAndTFsToDatabase(new HashMap<String, Integer>());
 		        
 		        // Compute TD-IDF
 		        HashMap<String, Double> keywordsWithTF_IDFs = documentFrequencyWithDBManager.getTF_IDFs(keywordsWithTFs, keywordsWithIDFs);

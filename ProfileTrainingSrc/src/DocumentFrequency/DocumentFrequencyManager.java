@@ -132,6 +132,9 @@ public class DocumentFrequencyManager {
 
 			//===== get infor from the web =====
 			TagNode[] myNodes = tagNode.getElementsByAttValue("class", "sb_count", true, false); 
+			if (myNodes.length == 0){
+				return -1;
+			}
 			String tempC =  myNodes[0].getText().toString().split(" 個結果")[0];
 
 			// transfer string to double
