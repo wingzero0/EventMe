@@ -7,10 +7,47 @@ require_once __DIR__ . '/../utility.php';
 require_once LIBPATH . 'HttpClient.class.php';
 require_once LIBPATH .'simple_html_dom.php';
 
+require_once __DIR__ . '/activity.php';
 
 class solr{
 	public static function ProfileKeywordSearch($s_uid){
 		
+	}
+	public function UpdateSolr(){
+		// dump recent activity to XML format
+		$a = new Activity();
+		$activityIDRet = $a->GetActivityByDefaultTimeInterval();
+		if ($activityIDRet["ret"] == 1){
+			$pattern = "/&/";
+			$replacement = "&amp;";
+			$xml = "<add>\n";
+			foreach ($activityIDRet["sqlResult"] as $i => $row){
+				$activityRow = $a->GetActivityRowByID($row["activityID"]);
+				$activityRow["sqlResult"][0]["Description"] = preg_replace($pattern, $replacement, $activityRow["sqlResult"][0]["Description"]);
+				//var_dump($activityRow);
+				$xml .= "\t<doc>";
+				foreach ($activityRow["sqlResult"][0] as $index => $value){
+					$xml .= sprintf("<field name=\"%s\">%s</field>", $index, $value);
+				}
+				$xml .= "\n\t</doc>\n";
+			}
+			$xml .= "</add>";
+		}
+		echo $xml;
+		
+		// clean solr index
+		system('java -Ddata=args -Dcommit=true -jar '. SOLRDOCPATH . 'post.jar "<delete><query>*:*</query></delete>"');
+		
+		// add solr index
+		$xmlFile = SOLRDOCPATH."recentActivity.xml";
+		$fp = fopen($xmlFile, "w");
+		if ($fp == NULL){
+			echo $xmlFile . "can't be save\n";
+			return -1;
+		}
+		fwrite($fp, $xml);
+		fclose($fp);
+		system('java -jar '. SOLRDOCPATH .'post.jar '.$xmlFile);
 	}
 	public function KeywordSearch($s_keywords){
 		// return list of relevant event id

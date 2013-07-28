@@ -4,6 +4,7 @@ define("CLASSPATH", "/var/www/ActivitySuggestion/PhpClass/");
 define("LIBPATH", "/var/www/ActivitySuggestion/PhpLib/");
 define("CONNECTIONPATH", "/var/www/ActivitySuggestion/");
 
+define("SOLRDOCPATH", "/home/wingzero/workspace/EventMe/Search/solr-4.3.0/EventMe/exampledocs/");
 
 class Utility{
 	public static function UnlockTables($sqlObj){

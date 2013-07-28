@@ -70,7 +70,7 @@ class Activity extends DbBase{
 		$ret["ret"] = 1;
 		return $ret;
 	}
-	public function GetActivityDescriptionByID($id, $operator = ">=" ,$limit = "10"){
+	public function GetActivityDescriptionByID($id, $operator = ">=" ,$limit = "30"){
 		// for preprocessing, get content
 		$sql = sprintf(
 				"SELECT id, Description
@@ -96,6 +96,29 @@ class Activity extends DbBase{
 		}
 		
 		$ret["ret"] = 1;
+		return $ret;
+	}
+	public function GetActivityRowByID($s_id){
+		$sql = sprintf(
+				"SELECT A.id, A.Name, A.Description, A.HostName, A.People,
+				A.Location, A.Longitude, A.Latitude, A.ApplyStartDate, A.ApplyEndDate,
+				A.Tel, A.WebSite, A.Fee, C.Name as Category
+				FROM Activity as A left join ActivityCategory as C
+				ON A.Category = C.id
+				WHERE A.ID = %d",
+				$s_id);
+	
+		$ret = $this->InitRetArray();
+	
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["ret"] = 1;
+		if ($row = $result->fetch_assoc()){
+			$ret["sqlResult"][] = $row;
+		}
 		return $ret;
 	}
 	public function InsertActivityComment($s_id, $s_uid,$s_comment){ // id for activity id
