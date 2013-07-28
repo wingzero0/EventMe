@@ -23,9 +23,9 @@ public class UserJoinedActivityManager {
 		return list;
 	}
 
-	public Map<String, Double> getAllActivityTFIDF(int uid){
+	public int[] getAllActivityID(){
 		try {
-			String urlParameters = "op=getActivityIDByUID&uid="+uid;
+			String urlParameters = "op=getActivityIDByUID&uid="+this.userIndex;
 			String request =  "http://localhost/ActivitySuggestion/userBrowsingRecordHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 
@@ -40,12 +40,11 @@ public class UserJoinedActivityManager {
 				for (int i =0; i <objs.length();i++) {
 					activity[i] = objs.getInt(i);
 				}
+				return activity;
 			}
 		}catch (JSONException e) {
 			e.printStackTrace();
-		}
-
-		HashMap<String, Double> IDFs = null; 
+		} 
 		return null;
 	}
 

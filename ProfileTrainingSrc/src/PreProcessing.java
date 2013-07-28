@@ -63,8 +63,7 @@ public class PreProcessing {
 	        
 
 	        HashMap<String, Integer> tfs = documentFrequencyWithDBManager.getTFs(segs);
-	        ActivityManager am = new ActivityManager("");
-	        am.SetActivityIndex(activityID);
+	        ActivityManager am = new ActivityManager(activityID);
 	        am.updateKeywordsAndTFsToDatabase(tfs);
 	        //System.out.println("IDFs:" + keywordsWithIDFs.toString());
 		} catch (IOException e) {

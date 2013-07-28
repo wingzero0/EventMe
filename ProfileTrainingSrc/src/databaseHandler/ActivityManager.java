@@ -25,6 +25,9 @@ public class ActivityManager {
 	public ActivityManager(String activityName) {
 		this.activityName = activityName;
 	}
+	public ActivityManager(int index){
+		this.activityIndex = index;
+	}
 	public void SetActivityIndex(int index){
 		this.activityIndex = index;
 	}
@@ -133,6 +136,51 @@ public class ActivityManager {
 			System.out.println("\nActivityManager --  getTFsFromDatabase keywordsWithIDFs.size()==0");
 		}
 		return keywordsWithIDFs; 
+	}
+	public HashMap<Integer, Double> getTFsFromDatabaseReturnKeywordID(){
+		HashMap<Integer, Double> TFs = new HashMap<Integer, Double>(); 
+		try {
+			// DEBUG
+			System.out.println("\nActivityManager --  getTFsFromDatabase start");
+			// assess a php page
+			String urlParameters = "op=getActivityWordWithKeywordID&activityID="+activityIndex;
+			String request =  "http://localhost/ActivitySuggestion/activityWordHandler.php";
+			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
+			// parsing json
+			JSONTokener tokener = new JSONTokener(jsonString);
+			JSONObject jsonObject = new JSONObject(tokener);
+			JSONArray objs =  jsonObject.getJSONArray("objs");
+			if(objs.length()==0) return null;
+			
+			// parsing json
+			double tfs[] = new double[objs.length()];
+			int keywordIDs[] =  new int[objs.length()];
+			double sum = 0;
+			for (int i =0; i <objs.length();i++) {
+				JSONTokener newtokener = new JSONTokener(objs.get(i).toString());
+				JSONObject newJsonObject = new JSONObject(newtokener);
+				keywordIDs[i] = newJsonObject.getInt("keywordID");
+				tfs[i] = newJsonObject.getInt("tf");
+				sum += tfs[i];
+			}
+			
+			for (int i =0; i <objs.length();i++) {
+				TFs.put(new Integer(keywordIDs[i]), new Double((double) tfs[i] / sum));
+			}
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		if(TFs.size()!=0){
+			System.out.println("\nActivityManager --  getTFsFromDatabase end");
+			for (Map.Entry<Integer, Double> entry : TFs.entrySet()) {
+				System.out.printf("				"+entry.getKey()+" "+ entry.getValue());
+			}	
+		}
+		else{
+			System.out.println("\nActivityManager --  getTFsFromDatabase keywordsWithIDFs.size()==0");
+		}
+		return TFs; 
 	}	
 	public static TreeMap<Integer, String> GetActivityDescription(int startID){
 		TreeMap<Integer, String> desMap = new TreeMap<Integer, String>();

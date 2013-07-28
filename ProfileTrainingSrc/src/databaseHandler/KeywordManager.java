@@ -125,5 +125,38 @@ public class KeywordManager {
 		}
 		return keywordsWithIDFs;
 	}	
-	
+	public double[] getIDFsFromDatabase(int keywordIDs[]){
+		// most part in this function in duplicate with public HashMap<String, Double> getIDFsFromDatabase(String keywords[])
+		// they should be merged in future
+		try {
+			//DEBUG
+			System.out.println("\nKeywordManager --  getIDFsFromDatabase start");
+			// assess a php page
+			String urlParameters = "op=getIDFByID&num="+keywordIDs.length;
+			for(int i =0; i<keywordIDs.length; i++){
+				urlParameters += ("&id" + i + "=" + keywordIDs[i]);
+			}
+			String request =  "http://localhost/ActivitySuggestion/keywordHandler.php";
+			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
+			
+			// parsing json
+			JSONTokener tokener = new JSONTokener(jsonString);
+			JSONObject jsonObject = new JSONObject(tokener);
+			double idf[] = null;
+			if (jsonObject.getInt("ret") != 1){
+				System.err.println("keywordHandler.php error" + jsonObject.getString("error"));
+			}else{
+				JSONArray objs =  jsonObject.getJSONArray("val");
+				idf = new double[keywordIDs.length];
+				for (int i =0; i <objs.length();i++) {
+					idf[i] = objs.getDouble(i);
+				}
+			}
+			return idf;
+		}catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 }
