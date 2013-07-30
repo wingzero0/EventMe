@@ -78,20 +78,68 @@ require_once CLASSPATH.'/activity.php';
 $s_var = array();
 Utility::AddslashesToPOSTField("op", $s_var);
 
-if ($s_var["op"] == "default"){
+$ret = array();
+$ret["ret"] = -1;
+
+if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault"){
+	Utility::AddslashesToPOSTField("limit", $s_var);
+	if ($s_var["limit"] == 0){
+		$s_var["limit"] = 30; // default 30
+	}
+	Utility::AddslashesToPOSTField("startOffset", $s_var); // default 0
+	
 	$actObj = new Activity();
-	$ret = $actObj->GetActivityByDefaultTimeInterval();
-	if ( !empty($ret["sqlResult"])){
-		//$ret["sqlResult"];
-		$ret["ids"] = array();
-		foreach ($ret["sqlResult"] as $i => $row){
-			foreach ($row as $colName => $value){
-				$ret["ids"][] = $value;
+	if ($s_var["op"] == "default"){
+		$idRet = $actObj->GetActivityByDefaultTimeInterval($s_var["limit"], $s_var["startOffset"]);
+	}else{
+		Utility::AddslashesToPOSTField("categoryID", $s_var);
+		$idRet = $actObj->GetActivityByCategoryAndDefaultTimeInterval(
+				$s_var["categoryID"], $s_var["limit"], $s_var["startOffset"]);
+	}
+	//$ret["idRet"] = $idRet;
+	
+	if (isset($idRet["error"])){
+		$ret["error"] = $idRet["error"];
+		echo json_encode($ret);
+		return ;
+	}
+	//print_r($_POST);
+	//print_r($idRet);
+	if ( !empty($idRet["sqlResult"]) ){
+		foreach ($idRet["sqlResult"] as $i => $row){
+			foreach ($row as $colName => $s_id){
+				$rowContent = $actObj->GetActivityRowByID($s_id);
+				//print_r($rowContent);
+				$timeSlot = $actObj->GetActivityTimeSlot($s_id);
+				//print_r($timeSlot);
+				if (isset($rowContent["error"])){
+					$ret["error"] = $rowContent["error"];
+					echo json_encode($ret);
+					return;
+				}
+				if (isset($timeSlot["error"])){
+					$ret["error"] = $timeSlot["error"];
+					echo json_encode($ret);
+					return;
+				}
+				if ( !empty($rowContent["sqlResult"]) ){ // it must be set if no error, but it may be empty
+					$content = $rowContent["sqlResult"][0];
+					$content["id"] = intval($content["id"]);
+					$content["Longitude"]=doubleval($content["Longitude"]);
+					$content["Latitude"]=doubleval($content["Latitude"]);
+					$content["Tel"]=intval($content["Tel"]);
+					$content["Fee"]=intval($content["Fee"]);
+					//$content["Category"]=intval($content["Category"]);
+					$ret["sqlResult"][$i] = $content;
+				}
+				if ( !empty($timeSlot["sqlResult"]) ){ // it must be set if no error, but it may be empty
+					$ret["sqlResult"][$i]["ActivityTimeSlot"] = $timeSlot["sqlResult"];
+				}
 			}
 		}
-		unset($ret["sqlResult"]);
 	}
-	echo json_encode($ret);
+	$ret["ret"] = 1;
+	echo Utility::DecodeUnicode(json_encode($ret));
 }else if ($s_var["op"] == "getActivityDescription"){
 	Utility::AddslashesToPOSTField("id", $s_var, "int");
 	Utility::AddslashesToPOSTField("operator", $s_var);

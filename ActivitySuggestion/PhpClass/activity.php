@@ -39,9 +39,10 @@ class Activity extends DbBase{
 		$ret = Activity::SearchActivityWithName($metaName);
 		return $ret;
 	}
-	public function GetActivityByDefaultTimeInterval(){
+	public function GetActivityByDefaultTimeInterval($limit = 0, $startOffset = 0){
 		// return activityIDs
 		$dateObj = new DateTime();
+		
 		$minEndTime = $dateObj->format("Y-m-d H:i:s");
 		$dateObj->add(new DateInterval("P30D")); // 30 days later
 		$maxStartTime = $dateObj->format("Y-m-d H:i:s");
@@ -52,6 +53,11 @@ class Activity extends DbBase{
 				ORDER BY ats.StartTime",
 				$minEndTime, $maxStartTime
 			);
+		
+		if ($limit > 0){
+			$sql .= sprintf(" limit %d, %d", $startOffset, $limit);
+		}
+		
 		$ret = array();
 		$ret["ret"] = -1;
 		//$ret["sql"] = $sql;
@@ -67,6 +73,40 @@ class Activity extends DbBase{
 			$i++;
 		}
 		
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	public function GetActivityByCategoryAndDefaultTimeInterval($categoryID, $limit = 0, $startOffset = 0){
+		// return activityIDs
+		$dateObj = new DateTime();
+		$minEndTime = $dateObj->format("Y-m-d H:i:s");
+		$dateObj->add(new DateInterval("P30D")); // 30 days later
+		$maxStartTime = $dateObj->format("Y-m-d H:i:s");
+		$sql = sprintf(
+				"SELECT DISTINCT act.id
+				FROM Activity as act left join ActivityTimeSlot as ats
+				ON act.id = ats.ReferenceActivityID
+				WHERE act.Category = %d AND ats.EndTime >=  '%s' AND ats.StartTime <= '%s'
+				ORDER BY ats.StartTime",
+				$categoryID, $minEndTime, $maxStartTime
+		);
+	
+		if ($limit > 0){
+			$sql .= sprintf(" limit %d, %d", $startOffset, $limit);
+		}
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["sqlResult"] = array();
+		$i = 0;
+		while($row = $result->fetch_assoc()){
+			$ret["sqlResult"][$i]["activityID"] = intval($row["id"]);
+			$i++;
+		}
+	
 		$ret["ret"] = 1;
 		return $ret;
 	}
@@ -102,7 +142,7 @@ class Activity extends DbBase{
 		$sql = sprintf(
 				"SELECT A.id, A.Name, A.Description, A.HostName, A.People,
 				A.Location, A.Longitude, A.Latitude, A.ApplyStartDate, A.ApplyEndDate,
-				A.Tel, A.WebSite, A.Fee, C.Name as Category
+				A.Tel, A.WebSite, A.Fee, A.Poster, C.Name as Category
 				FROM Activity as A left join ActivityCategory as C
 				ON A.Category = C.id
 				WHERE A.ID = %d",
@@ -117,6 +157,27 @@ class Activity extends DbBase{
 		}
 		$ret["ret"] = 1;
 		if ($row = $result->fetch_assoc()){
+			$ret["sqlResult"][] = $row;
+		}
+		return $ret;
+	}
+	public function GetActivityTimeSlot($s_id){
+		$sql = sprintf(
+				"SELECT id, StartTime, EndTime
+				FROM ActivityTimeSlot 
+				WHERE ReferenceActivityID = %d",
+				$s_id);
+		
+		$ret = $this->InitRetArray();
+		
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["ret"] = 1;
+		if ($row = $result->fetch_assoc()){
+			$row["id"] = intval($row["id"]);
 			$ret["sqlResult"][] = $row;
 		}
 		return $ret;
