@@ -41,7 +41,7 @@ public class UserProfileManager {
 				  urlParameters += "&" + weight;
 			   
 				  String request =  "http://140.112.29.228/ActivitySuggestion/profileHandler.php";
-				  String jsonString = Utility.getJsonFromDatabase( request,  urlParameters, true);
+				  String jsonString = Utility.getJsonFromDatabase( request,  urlParameters, false);
 				
 				  // parsing json
 				  JSONTokener tokener = new JSONTokener(jsonString);

@@ -64,7 +64,7 @@ public class DocumentFrequencyWithDBManager extends DocumentFrequencyManager{
 
 	//HashMap<String, Double> map, map.size() -th = standword
 	public  HashMap<String, Double> getIDFs( HashMap<String, Double> map){
-		double total = 287000000; // from 我
+		double total = 287000000; // from ���
 		List<String> segs = new ArrayList<String>(map.keySet());
 
 		for(String s : segs){
@@ -87,7 +87,7 @@ public class DocumentFrequencyWithDBManager extends DocumentFrequencyManager{
 		return map;
 	}
 	public HashMap<String, Double> getIDFs(String keywords[]){
-		double total = 287000000; // from 我
+		double total = 287000000; // from ���
 		HashMap<String, Double> idfs = new HashMap<String, Double>();
 		
 		for(String s : keywords){
@@ -108,12 +108,13 @@ public class DocumentFrequencyWithDBManager extends DocumentFrequencyManager{
 		HashMap<String, Double> temp = new HashMap<String, Double>();
 		List<String> segs = new ArrayList<String>(TFsMap.keySet());
 		for(String s:segs){
+			//System.out.println(TFsMap.get(s) +"  "+ IDFsMap.get(s) );
 			temp.put(s, TFsMap.get(s)*IDFsMap.get(s));
 		}
 		// DEBUG
 		System.out.println("\nDocumentFrequencyWithDBManager --  getTF_IDFs");
 		for (Map.Entry entry : temp.entrySet()) {
-			System.out.printf("				"+entry.getKey()+" "+ entry.getValue());
+			System.out.println("				"+entry.getKey()+" "+ entry.getValue());
 		}	
 		return temp;
 	}

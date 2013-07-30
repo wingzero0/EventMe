@@ -29,7 +29,7 @@ public class KeywordManager {
 			   	String idf = "idf"+i+"="+map.get(key).doubleValue();
 				urlParameters += "&" + keyword + "&" + idf;
 			}
-			String request =  "http://localhost/ActivitySuggestion/keywordHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/keywordHandler.php";
 			String jsonString = Utility.getJsonFromDatabase( request,  urlParameters, false );
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
@@ -53,7 +53,7 @@ public class KeywordManager {
 			   	String keyword = "keyword"+i+"="+URLEncoder.encode(keywords[i],"UTF-8");
 				urlParameters += ("&"+keyword);
 			}
-			String request =  "http://localhost/ActivitySuggestion/keywordHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/keywordHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
@@ -74,11 +74,11 @@ public class KeywordManager {
 		}
 		return ids; 
 	}
-	public HashMap<String, Double> getIDFsFromDatabase(String keywords[]){
+	public HashMap<String, Double> getIDFsFromDatabaseByKeywords(String keywords[]){
 		// input 	keywords word
 		// sort the word to match keywords[]
 		// id= 0 don't exist //  assign -10000.
-		
+
 		// get keyword and keyword id mapping
 		HashMap<String, Integer> ids = this.getKeywordIDfromDatabase(keywords);
 		HashMap<String, Double> keywordsWithIDFs = new HashMap<String, Double>(); // init;
@@ -93,7 +93,7 @@ public class KeywordManager {
 				int id = ids.get(keywords[i]);
 				urlParameters += ("&id" + i + "=" + id);
 			}
-			String request =  "http://localhost/ActivitySuggestion/keywordHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/keywordHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 			
 			// parsing json
@@ -125,38 +125,56 @@ public class KeywordManager {
 		}
 		return keywordsWithIDFs;
 	}	
-	public double[] getIDFsFromDatabase(int keywordIDs[]){
-		// most part in this function in duplicate with public HashMap<String, Double> getIDFsFromDatabase(String keywords[])
-		// they should be merged in future
+	
+	public HashMap<String, Double> getIDFsFromDatabaseByKeywordsID(String keywordsID[]){
+		
+		// ** For this function **
+		// input: keywords id
+		// ouput: the map of keyword id(String) and IDF(double)
+		
+		//** For PHP ** 
+		// input 	keywords id
+		// sort the word to match keywords[]
+		// id= 0 don't exist //  assign -10000.
+
+		HashMap<String, Double> keywordsWithIDFs = new HashMap<String, Double>(); // init;
+		
+		//Double[] IDFs = new Double[keywords.length];
 		try {
 			//DEBUG
 			System.out.println("\nKeywordManager --  getIDFsFromDatabase start");
 			// assess a php page
-			String urlParameters = "op=getIDFByID&num="+keywordIDs.length;
-			for(int i =0; i<keywordIDs.length; i++){
-				urlParameters += ("&id" + i + "=" + keywordIDs[i]);
+			String urlParameters = "op=getIDFByID&num="+keywordsID.length;
+			for(int i =0; i<keywordsID.length; i++){
+				urlParameters+= ("&id" + i + "=" + Integer.parseInt(keywordsID[i]) );
 			}
-			String request =  "http://localhost/ActivitySuggestion/keywordHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/keywordHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 			
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
 			JSONObject jsonObject = new JSONObject(tokener);
-			double idf[] = null;
 			if (jsonObject.getInt("ret") != 1){
 				System.err.println("keywordHandler.php error" + jsonObject.getString("error"));
 			}else{
 				JSONArray objs =  jsonObject.getJSONArray("val");
-				idf = new double[keywordIDs.length];
+				double idf;
 				for (int i =0; i <objs.length();i++) {
-					idf[i] = objs.getDouble(i);
+					idf = objs.getDouble(i);
+					keywordsWithIDFs.put(keywordsID[i], new Double(idf));
 				}
 			}
-			return idf;
 		}catch (JSONException e) {
 			e.printStackTrace();
 		}
 		
-		return null;
-	}
+		if(keywordsWithIDFs.size()!=0){
+			System.out.println("\nKeywordManager --  getIDFsFromDatabase end");
+			for (Map.Entry<String, Double> entry : keywordsWithIDFs.entrySet()) {
+				System.out.printf("				"+entry.getKey()+" "+ entry.getValue());
+			}
+		}
+		return keywordsWithIDFs;
+	}	
+	
 }

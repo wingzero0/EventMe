@@ -2,6 +2,7 @@ package databaseHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -23,10 +24,12 @@ public class UserJoinedActivityManager {
 		return list;
 	}
 
-	public int[] getAllActivityID(){
+	public int[] getAllActivityID(int uid){
+		
+		int activity[] = null;
 		try {
-			String urlParameters = "op=getActivityIDByUID&uid="+this.userIndex;
-			String request =  "http://localhost/ActivitySuggestion/userBrowsingRecordHandler.php";
+			String urlParameters = "op=getActivityIDByUID&uid="+uid;
+			String request =  "http://140.112.29.228/ActivitySuggestion/userBrowsingRecordHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 
 			// parsing json
@@ -36,16 +39,15 @@ public class UserJoinedActivityManager {
 				System.err.println("userBrowsingRecordHandler.php error" + jsonObject.getString("error"));
 			}else{
 				JSONArray objs =  jsonObject.getJSONArray("activityID");
-				int activity[] = new int[objs.length()]; 
+				activity = new int[objs.length()]; 
 				for (int i =0; i <objs.length();i++) {
 					activity[i] = objs.getInt(i);
 				}
-				return activity;
 			}
 		}catch (JSONException e) {
 			e.printStackTrace();
-		} 
-		return null;
+		}
+		return activity;
 	}
 
 }

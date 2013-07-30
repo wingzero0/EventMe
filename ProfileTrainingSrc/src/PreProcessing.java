@@ -39,14 +39,11 @@ public class PreProcessing {
 			
 			segs = keywordGenerationManager.run( description);
 			segs = keywordGenerationManager.kickoutStopWord("src/stopword.txt",segs);
-			HashMap<String, Integer> distinct = new HashMap<String, Integer>();
-			for (String s:segs){
-				distinct.put(s, new Integer(1)); // remove duplicate
-			}
+			String[] distinctKeywords = Utility.getDistinctKeyword(segs);
 			
 			KeywordManager keywordManager = new KeywordManager();
 	        DocumentFrequencyWithDBManager documentFrequencyWithDBManager =  new DocumentFrequencyWithDBManager();
-	        HashMap<String, Double> keywordsWithIDFs = keywordManager.getIDFsFromDatabase(distinct.keySet().toArray(new String[0])); // get idf from database
+	        HashMap<String, Double> keywordsWithIDFs = keywordManager.getIDFsFromDatabaseByKeywords(distinctKeywords); // get idf from database
 	        
 	        ArrayList<String> unknownIDF = new ArrayList<String>();
 			for(String s : new ArrayList<String>(keywordsWithIDFs.keySet())){
@@ -63,7 +60,8 @@ public class PreProcessing {
 	        
 
 	        HashMap<String, Integer> tfs = documentFrequencyWithDBManager.getTFs(segs);
-	        ActivityManager am = new ActivityManager(activityID);
+	        ActivityManager am = new ActivityManager("");
+	        am.SetActivityIndex(activityID);
 	        am.updateKeywordsAndTFsToDatabase(tfs);
 	        //System.out.println("IDFs:" + keywordsWithIDFs.toString());
 		} catch (IOException e) {

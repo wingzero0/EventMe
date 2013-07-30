@@ -25,9 +25,6 @@ public class ActivityManager {
 	public ActivityManager(String activityName) {
 		this.activityName = activityName;
 	}
-	public ActivityManager(int index){
-		this.activityIndex = index;
-	}
 	public void SetActivityIndex(int index){
 		this.activityIndex = index;
 	}
@@ -72,7 +69,7 @@ public class ActivityManager {
 				String tf = "tf"+i+"="+ map.get(key).intValue();
 				urlParameters += "&" + keyword + "&" + tf; 
 			}
-			String request =  "http://localhost/ActivitySuggestion/activityWordHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/activityWordHandler.php";
 			String jsonString = Utility.getJsonFromDatabase( request,  urlParameters, false);
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
@@ -92,39 +89,45 @@ public class ActivityManager {
 
 	public HashMap<String, Double> getTFsFromDatabase(){
 
+		// ** For this function **
+		// input: activityIndex
+		// ouput: the map of keyword id(String) and TF(double)
+		
+		//** For PHP ** 
 		// input 	activity index
 		// sort the word to match keywords[]
 		// don't exit return null
 
 		// http://140.112.29.228/ActivitySuggestion/activityWordHandler.php?op=get&activityID=1
 		Double[] TFs = null;
-		String[] keywords = null;
+		String[] keywordIDs = null;
 		try {
 			// DEBUG
 			System.out.println("\nActivityManager --  getTFsFromDatabase start");
 			// assess a php page
-			String urlParameters = "op=get&activityID="+activityIndex;
-			String request =  "http://140.112.29.228/ActivitySuggestion/activityWordHandlerPlaintext.php";
-			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, true );
+			String urlParameters = "op=getActivityWordWithKeywordID&activityID="+activityIndex;
+			String request =  "http://140.112.29.228/ActivitySuggestion/activityWordHandler.php";
+			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
 			JSONObject jsonObject = new JSONObject(tokener);
 			JSONArray objs =  jsonObject.getJSONArray("objs");
 			if(objs.length()==0) return null;
 			// parsing json
-			keywords =  new String[objs.length()];
+			keywordIDs =  new String[objs.length()];
 			TFs = new Double[objs.length()];
 			for (int i =0; i <objs.length();i++) {
 				JSONTokener newtokener = new JSONTokener(objs.get(i).toString());
 				JSONObject newJsonObject = new JSONObject(newtokener);
-				keywords[i] = newJsonObject.get("keyword").toString();
+				keywordIDs[i] = newJsonObject.get("keywordID").toString();
 				TFs[i] = Double.parseDouble(newJsonObject.get("tf").toString());
 			}
+			
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		// create hashmap
-		HashMap<String, Double> keywordsWithIDFs = Utility.createHashMap(keywords, TFs);
+		HashMap<String, Double> keywordsWithIDFs = Utility.createHashMap(keywordIDs, TFs);
 		// DEBUG
 		if(keywordsWithIDFs.size()!=0){
 			System.out.println("\nActivityManager --  getTFsFromDatabase end");
@@ -136,58 +139,14 @@ public class ActivityManager {
 			System.out.println("\nActivityManager --  getTFsFromDatabase keywordsWithIDFs.size()==0");
 		}
 		return keywordsWithIDFs; 
-	}
-	public HashMap<Integer, Double> getTFsFromDatabaseReturnKeywordID(){
-		HashMap<Integer, Double> TFs = new HashMap<Integer, Double>(); 
-		try {
-			// DEBUG
-			System.out.println("\nActivityManager --  getTFsFromDatabase start");
-			// assess a php page
-			String urlParameters = "op=getActivityWordWithKeywordID&activityID="+activityIndex;
-			String request =  "http://localhost/ActivitySuggestion/activityWordHandler.php";
-			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
-			// parsing json
-			JSONTokener tokener = new JSONTokener(jsonString);
-			JSONObject jsonObject = new JSONObject(tokener);
-			JSONArray objs =  jsonObject.getJSONArray("objs");
-			if(objs.length()==0) return null;
-			
-			// parsing json
-			double tfs[] = new double[objs.length()];
-			int keywordIDs[] =  new int[objs.length()];
-			double sum = 0;
-			for (int i =0; i <objs.length();i++) {
-				JSONTokener newtokener = new JSONTokener(objs.get(i).toString());
-				JSONObject newJsonObject = new JSONObject(newtokener);
-				keywordIDs[i] = newJsonObject.getInt("keywordID");
-				tfs[i] = newJsonObject.getInt("tf");
-				sum += tfs[i];
-			}
-			
-			for (int i =0; i <objs.length();i++) {
-				TFs.put(new Integer(keywordIDs[i]), new Double((double) tfs[i] / sum));
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		
-		if(TFs.size()!=0){
-			System.out.println("\nActivityManager --  getTFsFromDatabase end");
-			for (Map.Entry<Integer, Double> entry : TFs.entrySet()) {
-				System.out.printf("				"+entry.getKey()+" "+ entry.getValue());
-			}	
-		}
-		else{
-			System.out.println("\nActivityManager --  getTFsFromDatabase keywordsWithIDFs.size()==0");
-		}
-		return TFs; 
 	}	
+	
 	public static TreeMap<Integer, String> GetActivityDescription(int startID){
 		TreeMap<Integer, String> desMap = new TreeMap<Integer, String>();
 		try {
 			// assess a php page
 			String urlParameters = "op=getActivityDescription&id=" + startID;
-			String request =  "http://localhost/ActivitySuggestion/activityHandler.php";
+			String request =  "http://140.112.29.228/ActivitySuggestion/activityHandler.php";
 			String jsonString= Utility.getJsonFromDatabase( request,  urlParameters, false );
 			// parsing json
 			JSONTokener tokener = new JSONTokener(jsonString);
