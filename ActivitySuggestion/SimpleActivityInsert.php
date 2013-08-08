@@ -286,7 +286,7 @@ function UnlockTables(){
 		});
 	}
   </script></head><body>
-<form method="post" action="SimpleActivityInsertDev.php" name="ActivityInsert">
+<form method="post" action="SimpleActivityInsert.php" name="ActivityInsert">
 名稱<input maxlength="255" name="name"><br>
 類型<input name="category"><br>
 簡介<textarea cols="50" rows="10" name="description"></textarea><br>

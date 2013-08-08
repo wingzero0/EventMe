@@ -74,6 +74,7 @@
 
 require_once 'utility.php';
 require_once CLASSPATH.'/activity.php';
+require_once __DIR__ .'/recommendListHandler.php';
 
 $s_var = array();
 Utility::AddslashesToPOSTField("op", $s_var);
@@ -81,7 +82,7 @@ Utility::AddslashesToPOSTField("op", $s_var);
 $ret = array();
 $ret["ret"] = -1;
 
-if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault" || $s_var["op"] == "freeDefault"){
+if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault" || $s_var["op"] == "freeDefault" || $s_var["op"] == "recommendedDefault"){
 	Utility::AddslashesToPOSTField("limit", $s_var);
 	if ($s_var["limit"] == 0){
 		$s_var["limit"] = 30; // default 30
@@ -95,8 +96,25 @@ if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault" || $s_var["op
 		Utility::AddslashesToPOSTField("categoryID", $s_var);
 		$idRet = $actObj->GetActivityByCategoryAndDefaultTimeInterval(
 				$s_var["categoryID"], $s_var["limit"], $s_var["startOffset"]);
-	}else{
+	}else if ($s_var["op"] == "freeDefault"){
 		$idRet = $actObj->GetFreeActivityByDefaultTimeInterval($s_var["limit"], $s_var["startOffset"]);
+	}else {
+		$obj = new RecommendList();
+		Utility::AddslashesToPOSTField("userID", $s_var);
+		$tmp = $obj->QueryByUserProfile($s_var["userID"]);
+		$idRet = array();
+		$idRet["ret"] = 1;
+		$counter = 0;
+		foreach ($tmp["ids"] as $i => $id){
+			if ($i < $s_var["startOffset"]){
+				continue;
+			}
+			if ($counter >= $s_var["limit"]){
+				break;
+			}
+			$idRet["sqlResult"][$counter]["activityID"] = $id;
+			$counter++;
+		}
 	}
 	//$ret["idRet"] = $idRet;
 	

@@ -67,7 +67,7 @@ class solr{
 			return $ret;
 		}
 		$pageContents = $client->getContent();
-	
+		
 		//echo $pageContents;
 		//$ret["activityIDs"] = $this->PageParsing($pageContents);
 		$ret["ids"] = $this->PageParsing($pageContents);
@@ -77,6 +77,9 @@ class solr{
 	private function PageParsing($pageContents){
 		// read the xml str and parsing it and output the relevant doc id
 		$xml = str_get_html($pageContents);
+		if (!$xml){
+			return array();
+		}
 		$docs = $xml->find("doc");
 		$ids = array();
 		foreach ($docs as $doc){

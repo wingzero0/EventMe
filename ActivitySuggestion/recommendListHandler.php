@@ -13,7 +13,7 @@
  * [386,410,399,412,388,422,401,458,411,391]
  */
 
-require_once 'utility.php';
+require_once __DIR__ . '/utility.php';
 require_once CONNECTIONPATH . '/connection.php';
 require_once CLASSPATH . '/solr.php';
 
@@ -30,7 +30,9 @@ class RecommendList{
 				FROM UserProfile U, ProfileKeyword PK, Keyword K
 				WHERE U.UserID = %d
 				AND U.ProfileID = PK.profileID
-				AND PK.keywordID = K.id",
+				AND PK.keywordID = K.id
+				limit 0, 30
+				",
 				$uid);
 		$result = $g_mysqli->query($sql);
 		$keywords = array();
@@ -49,12 +51,12 @@ class RecommendList{
 $keywords = array();
 $keywords[0] = $argv[1];
 */
-
+/*
 $s_var = array();
 Utility::AddslashesToGETField("uid", $s_var, "int");
 $re = new RecommendList();
 $ids = $re->QueryByUserProfile($s_var["uid"]);
 
 echo json_encode($ids);
-
+*/
 ?>

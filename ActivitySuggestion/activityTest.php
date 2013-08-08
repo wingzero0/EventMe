@@ -28,4 +28,25 @@ categoryID<input name="categoryID"><br>
 </form>
 </p>
 
+<p>
+<form method="post" action="activityHandler.php" name="freeTest" target="_blank">
+<input type="hidden" name="op" value="freeDefault">
+Search recent activity with free filter(in one month)<br>
+limit<input name="limit"><br>
+startOffset<input name="startOffset"><br>
+<button name="submit">送出</button>
+</form>
+</p>
+
+<p>
+<form method="post" action="activityHandler.php" name="recommendTest" target="_blank">
+<input type="hidden" name="op" value="recommendedDefault">
+Search recent activity with recommend filter(in one month)<br>
+userID<input name="userID"><br>
+limit<input name="limit"><br>
+startOffset<input name="startOffset"><br>
+<button name="submit">送出</button>
+</form>
+</p>
+
 </body></html>
