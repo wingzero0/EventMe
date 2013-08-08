@@ -4,6 +4,7 @@
  */
 
 require_once __DIR__."/dbBase.php";
+include('config.php');
 
 class Activity extends DbBase{
 	protected $mysqli;
@@ -57,7 +58,13 @@ class Activity extends DbBase{
 		if ($limit > 0){
 			$sql .= sprintf(" limit %d, %d", $startOffset, $limit);
 		}
-		
+		// if ($startOffset > 0){
+		// 		$sql .= sprintf(" WHERE id` < %d", $startOffset );
+		// }
+		// if ($limit > 0){
+		// 	$sql .= sprintf("  limit %d ", $limit);
+		// }
+
 		$ret = array();
 		$ret["ret"] = -1;
 		//$ret["sql"] = $sql;
@@ -110,6 +117,42 @@ class Activity extends DbBase{
 		$ret["ret"] = 1;
 		return $ret;
 	}
+	
+	public function GetFreeActivityByDefaultTimeInterval($limit = 0, $startOffset = 0){
+		// return activityIDs
+		$dateObj = new DateTime();
+		$minEndTime = $dateObj->format("Y-m-d H:i:s");
+		$dateObj->add(new DateInterval("P30D")); // 30 days later
+		$maxStartTime = $dateObj->format("Y-m-d H:i:s");
+		$sql = sprintf(
+				"SELECT DISTINCT act.id
+				FROM Activity as act left join ActivityTimeSlot as ats
+				ON act.id = ats.ReferenceActivityID
+				WHERE act.Fee = 0 AND ats.EndTime >=  '%s' AND ats.StartTime <= '%s'
+				ORDER BY ats.StartTime",
+				$minEndTime, $maxStartTime
+		);
+	
+		if ($limit > 0){
+			$sql .= sprintf(" limit %d, %d", $startOffset, $limit);
+		}
+		$ret = $this->InitRetArray();
+		$result = $this->mysqli->query($sql);
+		if ($this->mysqli->error){
+			$ret["error"] = $this->mysqli->error;
+			return $ret;
+		}
+		$ret["sqlResult"] = array();
+		$i = 0;
+		while($row = $result->fetch_assoc()){
+			$ret["sqlResult"][$i]["activityID"] = intval($row["id"]);
+			$i++;
+		}
+	
+		$ret["ret"] = 1;
+		return $ret;
+	}
+	
 	public function GetActivityDescriptionByID($id, $operator = ">=" ,$limit = "30"){
 		// for preprocessing, get content
 		$sql = sprintf(
@@ -199,7 +242,7 @@ class Activity extends DbBase{
 	
 	public function GetActivityComment($s_id){
 		$sql = sprintf(
-				"select UserID, Comment from ActivityComment where ActivityID = %d",
+				"select UserID, Comment, TimeSlot from ActivityComment where ActivityID = %d",
 				$s_id);
 		
 		$ret = $this->InitRetArray();
@@ -210,9 +253,25 @@ class Activity extends DbBase{
 		}
 		$ret["sqlResult"] = array();
 		$i = 0;
+	
 		while($row = $result->fetch_assoc()){
+
+				$subquery = "SELECT `FirstName` FROM User WHERE `id`='".$row["UserID"]."'";
+				if (  $queryResult = mysql_query($subquery)){
+					if ( $ary =  mysql_fetch_assoc($queryResult)){
+						$ret["sqlResult"][$i]["UserName"] = $ary["FirstName"];
+					}
+				}
+				else
+				{
+				    echo (mysql_error ());
+				}
+				
+			
+
 			$ret["sqlResult"][$i]["UserID"] = intval($row["UserID"]);
 			$ret["sqlResult"][$i]["Comment"] = $row["Comment"];
+			$ret["sqlResult"][$i]["TimeSlot"] = $row["TimeSlot"];
 			$i++;
 		}
 		$ret["ret"] = 1;
@@ -222,6 +281,13 @@ class Activity extends DbBase{
 	public function GetActivityLikeCount($s_id){
 		$sql = sprintf(
 				"select count(*) from ActivityLike where ActivityID = %d",
+				$s_id);
+		
+		return $this->ActivityLike($sql);
+	}
+	public function GetActivityCommentCount($s_id){
+		$sql = sprintf(
+				"select count(*) from  ActivityComment where ActivityID = %d",
 				$s_id);
 		
 		return $this->ActivityLike($sql);
@@ -289,6 +355,7 @@ class Activity extends DbBase{
 		$ret["ret"] = 1;
 		return $ret;
 	}
+
 	/*
 	private function _GetActivityComment($sql){
 		$ret = $this->InitRetArray();

@@ -81,7 +81,7 @@ Utility::AddslashesToPOSTField("op", $s_var);
 $ret = array();
 $ret["ret"] = -1;
 
-if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault"){
+if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault" || $s_var["op"] == "freeDefault"){
 	Utility::AddslashesToPOSTField("limit", $s_var);
 	if ($s_var["limit"] == 0){
 		$s_var["limit"] = 30; // default 30
@@ -91,10 +91,12 @@ if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault"){
 	$actObj = new Activity();
 	if ($s_var["op"] == "default"){
 		$idRet = $actObj->GetActivityByDefaultTimeInterval($s_var["limit"], $s_var["startOffset"]);
-	}else{
+	}else if ($s_var["op"] == "categoryDefault") {
 		Utility::AddslashesToPOSTField("categoryID", $s_var);
 		$idRet = $actObj->GetActivityByCategoryAndDefaultTimeInterval(
 				$s_var["categoryID"], $s_var["limit"], $s_var["startOffset"]);
+	}else{
+		$idRet = $actObj->GetFreeActivityByDefaultTimeInterval($s_var["limit"], $s_var["startOffset"]);
 	}
 	//$ret["idRet"] = $idRet;
 	
@@ -123,7 +125,15 @@ if ($s_var["op"] == "default" || $s_var["op"] == "categoryDefault"){
 					return;
 				}
 				if ( !empty($rowContent["sqlResult"]) ){ // it must be set if no error, but it may be empty
+				
+					
 					$content = $rowContent["sqlResult"][0];
+					$actObj = new Activity();//oscar add
+					$sub_result=$actObj->GetActivityLikeCount($content["id"]);//oscar add
+					$content["likes"] = intval($sub_result["sqlResult"]);//oscar add
+					$sub_result=$actObj->GetActivityCommentCount($content["id"]);//oscar add
+					$content["Comments"] = intval($sub_result["sqlResult"]);//oscar add
+
 					$content["id"] = intval($content["id"]);
 					$content["Longitude"]=doubleval($content["Longitude"]);
 					$content["Latitude"]=doubleval($content["Latitude"]);
