@@ -24,6 +24,8 @@ class solr{
 			foreach ($activityIDRet["sqlResult"] as $i => $row){
 				$activityRow = $a->GetActivityRowByID($row["activityID"]);
 				$activityRow["sqlResult"][0]["Description"] = preg_replace($pattern, $replacement, $activityRow["sqlResult"][0]["Description"]);
+				$activityRow["sqlResult"][0]["Poster"] = preg_replace($pattern, $replacement, $activityRow["sqlResult"][0]["Poster"]);
+				$activityRow["sqlResult"][0]["WebSite"] = preg_replace($pattern, $replacement, $activityRow["sqlResult"][0]["WebSite"]);
 				//var_dump($activityRow);
 				$xml .= "\t<doc>";
 				foreach ($activityRow["sqlResult"][0] as $index => $value){
@@ -33,7 +35,7 @@ class solr{
 			}
 			$xml .= "</add>";
 		}
-		echo $xml;
+		//echo $xml;
 		
 		// clean solr index
 		system('java -Ddata=args -Dcommit=true -jar '. SOLRDOCPATH . 'post.jar "<delete><query>*:*</query></delete>"');

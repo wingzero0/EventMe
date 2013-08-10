@@ -4,7 +4,6 @@
  */
 
 require_once __DIR__."/dbBase.php";
-include('config.php');
 
 class Activity extends DbBase{
 	protected $mysqli;
@@ -242,7 +241,9 @@ class Activity extends DbBase{
 	
 	public function GetActivityComment($s_id){
 		$sql = sprintf(
-				"select UserID, Comment, TimeSlot from ActivityComment where ActivityID = %d",
+				"Select AC.UserID, AC.Comment, AC.TimeSlot, U.FirstName 
+				From ActivityComment as AC, User as U 
+				where AC.ActivityID = %d and AC.UserID = U.id",
 				$s_id);
 		
 		$ret = $this->InitRetArray();
@@ -255,21 +256,8 @@ class Activity extends DbBase{
 		$i = 0;
 	
 		while($row = $result->fetch_assoc()){
-
-				$subquery = "SELECT `FirstName` FROM User WHERE `id`='".$row["UserID"]."'";
-				if (  $queryResult = mysql_query($subquery)){
-					if ( $ary =  mysql_fetch_assoc($queryResult)){
-						$ret["sqlResult"][$i]["UserName"] = $ary["FirstName"];
-					}
-				}
-				else
-				{
-				    echo (mysql_error ());
-				}
-				
-			
-
 			$ret["sqlResult"][$i]["UserID"] = intval($row["UserID"]);
+			$ret["sqlResult"][$i]["UserName"] = $row["FirstName"];
 			$ret["sqlResult"][$i]["Comment"] = $row["Comment"];
 			$ret["sqlResult"][$i]["TimeSlot"] = $row["TimeSlot"];
 			$i++;
@@ -277,19 +265,19 @@ class Activity extends DbBase{
 		$ret["ret"] = 1;
 		return $ret;
 	}
-	
+
 	public function GetActivityLikeCount($s_id){
 		$sql = sprintf(
 				"select count(*) from ActivityLike where ActivityID = %d",
 				$s_id);
-		
+
 		return $this->ActivityLike($sql);
 	}
 	public function GetActivityCommentCount($s_id){
 		$sql = sprintf(
 				"select count(*) from  ActivityComment where ActivityID = %d",
 				$s_id);
-		
+
 		return $this->ActivityLike($sql);
 	}
 	public function IsActivityLikeByUser($s_id, $s_uid){
@@ -299,10 +287,10 @@ class Activity extends DbBase{
 		return $this->ActivityLike($sql);
 	}
 	public function SetUnsetActivityLike($s_id, $s_uid, $boolFlag){
-		
+
 		$ret = $this->InitRetArray();
-		
-		
+
+
 		if (!$boolFlag){ // unset
 			$sql = sprintf(
 					"DELETE FROM ActivityLike WHERE ActivityID = %d AND UserID = %d",
@@ -321,7 +309,7 @@ class Activity extends DbBase{
 					"select * from ActivityLike where ActivityID = %d and UserID = %d",
 					$s_id, $s_uid);
 			$result = $this->mysqli->query($sql);
-			
+
 			// if not exists
 			if ( !$result->fetch_row()){
 				$sql = sprintf(
@@ -329,7 +317,7 @@ class Activity extends DbBase{
 						$s_id, $s_uid);
 				$result = $this->mysqli->query($sql);
 			}
-			
+
 			if ($this->mysqli->error){
 				$ret['error'] = "sql error:" . $sql . " ". $this->mysqli->error;
 				$this->UnlockTables();
@@ -338,7 +326,7 @@ class Activity extends DbBase{
 				$this->UnlockTables();
 			}
 		}
-		
+
 		$ret["ret"] = 1;
 		return $ret;
 	}
@@ -357,35 +345,35 @@ class Activity extends DbBase{
 	}
 
 	/*
-	private function _GetActivityComment($sql){
-		$ret = $this->InitRetArray();
-		$result = $this->mysqli->query($sql);
-		if ($this->mysqli->error){
-			$ret["error"] = $this->mysqli->error;
-			return $ret;
-		}
-		$ret["sqlResult"] = array();
-		$i = 0;
-		while($row = $result->fetch_assoc()){
-			$ret["sqlResult"][$i] = $row;
-		}
-		$ret["ret"] = 1;
-		return $ret;
-	}
-	public function GetActivityCommentByUserID($s_id, $s_uid){
-		$sql = sprintf(
-				"select Comment from ActivityComment where id = %d and UserID = %d",
-				$s_id, $s_uid);
-		return $this->GetActivityComment($sql);
-	}
-		
-	public function GetActivityCommentByEmail($s_id, $s_mail){
-		$sql = sprintf(
-				"select Comment from ActivityComment where id = %d and UserID in 
-					(select id from User where Email like '%s')",
-				$s_id, $s_mail);
-		return $this->GetActivityComment($sql);
-		
-	}*/
+	   private function _GetActivityComment($sql){
+	   $ret = $this->InitRetArray();
+	   $result = $this->mysqli->query($sql);
+	   if ($this->mysqli->error){
+	   $ret["error"] = $this->mysqli->error;
+	   return $ret;
+	   }
+	   $ret["sqlResult"] = array();
+	   $i = 0;
+	   while($row = $result->fetch_assoc()){
+	   $ret["sqlResult"][$i] = $row;
+	   }
+	   $ret["ret"] = 1;
+	   return $ret;
+	   }
+	   public function GetActivityCommentByUserID($s_id, $s_uid){
+	   $sql = sprintf(
+	   "select Comment from ActivityComment where id = %d and UserID = %d",
+	   $s_id, $s_uid);
+	   return $this->GetActivityComment($sql);
+	   }
+
+	   public function GetActivityCommentByEmail($s_id, $s_mail){
+	   $sql = sprintf(
+	   "select Comment from ActivityComment where id = %d and UserID in 
+	   (select id from User where Email like '%s')",
+	   $s_id, $s_mail);
+	   return $this->GetActivityComment($sql);
+
+	   }*/
 }
 ?>

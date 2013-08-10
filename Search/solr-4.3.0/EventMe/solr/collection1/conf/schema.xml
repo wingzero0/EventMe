@@ -105,7 +105,7 @@
       and back compatibility is not guaranteed.  Names with both leading and
       trailing underscores (e.g. _version_) are reserved.
    -->
-        
+   <!-- Event Me field -->
    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
    <field name="Name" type="text_general" indexed="true" stored="true" />
    <field name="Description" type="string" indexed="true" stored="true" />
@@ -118,6 +118,7 @@
    <field name="ApplyEndDate" type="text_general" indexed="true" stored="true" />
    <field name="Tel" type="string" indexed="true" stored="true" />
    <field name="WebSite" type="string" indexed="true" stored="true" />
+   <field name="Poster" type="string" indexed="false" stored="false" />
    <field name="Fee" type="string" indexed="true" stored="true" />
    <field name="Category" type="text_general" indexed="true" stored="true" />
       
@@ -252,6 +253,7 @@
   <!-- copyField commands copy one field to another at the time a document
         is added to the index.  It's used either to index the same field differently,
         or to add multiple fields to the same field for easier/faster searching.  -->
+   <!-- Event Me field -->
    <copyField source="Name" dest="text"/>
    <copyField source="HostName" dest="text"/>
    <copyField source="Description" dest="text"/>
