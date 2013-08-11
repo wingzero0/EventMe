@@ -35,8 +35,12 @@ if (isset($_POST["submit"])){
 	$fee = intval( addslashes($_POST["fee"]) );
 	$tel = addslashes($_POST["tel"]);
 	$website = addslashes($_POST["website"]);
-	Utility::AddslashesToPOSTField("poster", $s_var);
-	//$s_var["poster"] = "test link";
+	$poster = addslashes($_POST["poster"]);
+	if (empty($poster)){
+		$posterTerm = "NULL";
+	}else{
+		$posterTerm = "'".$poster."'";
+	}
 	
 	$query = sprintf("Lock Tables `ActivityCategory` Write, `Activity` Write, `ActivityTimeSlot` Write");
 	mysql_query($query) or die( "error sql:".mysql_error() );
@@ -71,7 +75,7 @@ if (isset($_POST["submit"])){
 			`Fee`, 
 			`Category`) 
 		value ('%s', '%s', '%s', '%s', '%s', 
-			%lf, %lf, '%s', '%s', '%s', '%s', '%s', %d, '%s'
+			%lf, %lf, '%s', '%s', '%s', '%s', %s, %d, '%s'
 		)",
 			$name, 
 			$description, 
@@ -84,7 +88,7 @@ if (isset($_POST["submit"])){
 			$s_var["applyEndDate"],
 			$tel,
 			$website,
-			$s_var["poster"],
+			$posterTerm,
 			$fee,
 			$categoryID);
 	mysql_query($query) or die( "error sql:".mysql_error().UnlockTables() );

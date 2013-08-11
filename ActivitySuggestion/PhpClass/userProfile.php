@@ -2,8 +2,9 @@
 /* handle the db requst that involve with table UserProfile
  */
 
-require_once 'connection.php';
-require_once 'utility.php';
+require_once __DIR__ . '/../utility.php';
+require_once __DIR__ . '/../connection.php';
+
 
 class UserProfile{
 	public function __construct(){

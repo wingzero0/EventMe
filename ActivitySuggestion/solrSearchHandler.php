@@ -14,7 +14,7 @@
  * http://140.112.29.228/ActivitySuggestion/solrSearchHandler.php?q=演唱會
  * */
 
-require_once "utility.php"; 
+require_once __DIR__ . '/utility.php';
 require_once CLASSPATH . '/solr.php';
 
 $s_var = array();

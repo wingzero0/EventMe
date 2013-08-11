@@ -9,7 +9,7 @@
  */
 
 
-require_once 'utility.php';
+require_once __DIR__ . '/utility.php';
 require_once CLASSPATH.'/activity.php';
 
 $s_var = array();
