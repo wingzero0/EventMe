@@ -50,7 +50,7 @@ class Activity extends DbBase{
 				"SELECT DISTINCT ats.ReferenceActivityID
 				FROM ActivityTimeSlot AS ats
 				WHERE ats.EndTime >=  '%s' AND ats.StartTime <= '%s' 
-				ORDER BY ats.StartTime",
+				ORDER BY ats.ReferenceActivityID desc",
 				$minEndTime, $maxStartTime
 			);
 		
