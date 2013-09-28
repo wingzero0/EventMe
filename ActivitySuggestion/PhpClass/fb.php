@@ -26,7 +26,8 @@ class FBApp{
 					array(
 							'type'=>'place',
 							'center'=>$location,
-							'distance'=> '500'
+							'distance'=> '500',
+							'limit' => '50'
 					)
 			);
 			
