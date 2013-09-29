@@ -28,7 +28,7 @@ if ($fp = fopen("lastRecord.txt", "r+")){
 }
 
 $i = 0;
-$maxQuery = 100;
+$maxQuery = 500;
 if ($flag){
 	$x = $lastLat;
 }else{
