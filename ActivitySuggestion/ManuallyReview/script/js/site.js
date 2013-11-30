@@ -7,10 +7,48 @@
 		$( "#textMenu" ).html('<li id="menu1"><a href="#1">4e5c2c95-f2e0-4229-8373-5345e7813576.xml</a></li><li id="menu2"><a href="#2">9eacbf2b-8e11-47b8-979f-1bff288a4496.xml</a></li>');
 		$( "#textMenu" ).menu();
 	}
+	var querySource = function(sourceSite){
+		var updateTextMenu = function(textList){
+			// set menu list
+			var html = "";
+			$.each(textList, function(index,value){
+				//html = html + "<li id="+value+"><a href='#1'>" + value + "</a></li>";
+				html = html + "<li><a href='#1' id=text"+index+">" + value + "</a></li>";
+			});
+			$( "#textMenu" ).menu('destroy');
+			$( "#textMenu" ).html(html);
+			$( "#textMenu" ).menu();
+
+			// set menu click event
+
+			var updateOriginalText = function(data){
+				$("#originalText").html(data);
+				/*
+				$.each(data, function(index, value){
+					$("#originalText").html(value);
+				});
+				*/
+			}
+			var getPlainText = function(fileName){
+				$.get("fileHandler.php", {"op":"getPlainText", "source": sourceSite, "text": fileName}, updateOriginalText, "json");
+			}
+
+			$.each(textList, function(index,value){
+				var id = "#text" + index;
+				//console.log(id);
+				$(id).click(function(){
+					getPlainText(value);
+				});
+			});
+		}
+		$.get("fileHandler.php", {"op":"getSourceList", "source": sourceSite},updateTextMenu, "json");
+	}
 	var queryICAM = function(){
 		//query server fold ICAM - 民政總署
 		// demo change
-		addMenu();
+		//addMenu();
+		querySource("ICAM");
+		/*
 		$("#menu1").click(function(){
 			$("#originalText").html('<p>\
 				    主頁 > 活動訊息 > 活動快訊\
@@ -23,6 +61,7 @@
 		$("#menu2").click(function(){
 			$("#originalText").html('<p>活動二</p>');
 		});
+		*/
 	}
 	$("#addMenu").click(addMenu);
 		
