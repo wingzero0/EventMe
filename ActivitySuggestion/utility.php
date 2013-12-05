@@ -79,4 +79,7 @@ class Utility{
 				create_function('$matches','return mb_convert_encoding(pack("H*", $matches[1]), "UTF-8", "UCS-2BE");'),
 				$str);
 	}
+	public static function UnicodeJsonEncode($str){
+		return Utility::DecodeUnicode(json_encode($str));
+	}
 }

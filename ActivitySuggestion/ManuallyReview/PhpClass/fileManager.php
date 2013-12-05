@@ -39,6 +39,26 @@ class FileManager{
 			return array("error" => $errorStr);
 		}
 	}
+	public function ToXML($xmlStr){
+		// parse
+		$xml = str_get_html($xmlStr);
+		if ($xml){
+			return $xml;
+		}else{
+			return null;
+		} 
+	}
+	public function GetTrimContent($path){
+		if ($fp = fopen($path, "r")){
+			// read from file
+			$xmlStr = "";
+			while($line = fgets($fp)){
+				$xmlStr .= trim($line);
+			}
+			return $xmlStr;
+		}
+		return null;
+	}
 	public function GetFilePlainText($path){
 		if ($fp = fopen($path, "r")){
 			// read from file

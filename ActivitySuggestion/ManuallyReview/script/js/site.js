@@ -29,8 +29,21 @@
 				});
 				*/
 			}
+
+			var updateInputField = function(data){
+				console.log(data);
+				// $.each(data, function (index,value){
+				//	 console.log(index + ":" + value);
+				// });
+				console.log("des:"+data.description);
+				console.log("name:" +data.name);
+				
+			}
 			var getPlainText = function(fileName){
 				$.get("fileHandler.php", {"op":"getPlainText", "source": sourceSite, "text": fileName}, updateOriginalText, "json");
+			}
+			var getEventContainer = function(fileName){
+				$.get("eventParserHandler.php", {"op":"parseXML", "source": sourceSite, "text": fileName}, updateInputField, "json");
 			}
 
 			$.each(textList, function(index,value){
@@ -38,6 +51,7 @@
 				//console.log(id);
 				$(id).click(function(){
 					getPlainText(value);
+					getEventContainer(value);
 				});
 			});
 		}
