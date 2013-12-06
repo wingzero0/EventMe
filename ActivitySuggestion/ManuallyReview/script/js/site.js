@@ -23,21 +23,14 @@
 
 			var updateOriginalText = function(data){
 				$("#originalText").html(data);
-				/*
-				$.each(data, function(index, value){
-					$("#originalText").html(value);
-				});
-				*/
 			}
 
 			var updateInputField = function(data){
-				console.log(data);
-				// $.each(data, function (index,value){
-				//	 console.log(index + ":" + value);
-				// });
-				console.log("des:"+data.description);
-				console.log("name:" +data.name);
-				
+				$.each(data, function (index,value){
+					 console.log(index + ":" + value);
+				});
+				$("#name").val(data.name);
+				$("#description").val(data.description);
 			}
 			var getPlainText = function(fileName){
 				$.get("fileHandler.php", {"op":"getPlainText", "source": sourceSite, "text": fileName}, updateOriginalText, "json");

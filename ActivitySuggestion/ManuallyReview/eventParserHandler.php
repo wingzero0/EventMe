@@ -20,7 +20,7 @@ if ($s_var["op"] == "parseXML"){
 	if ($xml){
 		$iacm = new IACMContainer($xml);
 		$jsonContent = $iacm->Parse();
-		echo Utility::UnicodeJsonEncode($jsonContent);
+		echo $jsonContent;
 	}else{
 		if ($xmlStr == null){
 			echo json_encode(array('error' => 'file not found'));

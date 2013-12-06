@@ -31,7 +31,7 @@ class EventContainer{
 			'startDate' => $this->startDate,  // string
 			'endDate' => $this->endDate  // string
 		);  // string
-		return Utility::DecodeUnicode(json_encode($phpArray));
+		return Utility::UnicodeJsonEncode($phpArray);
 	}
 	/*
 	public function constructWithXML($xml){
