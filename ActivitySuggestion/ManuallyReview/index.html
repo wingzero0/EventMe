@@ -24,9 +24,9 @@
     		<div id='originalText'><pre>純文字版活動介紹</pre></div>
 	    </div>
 	    <div class='rightColumn'>
-	    	<form method="post" action="SimpleActivityInsert.php" name="ActivityInsert">
+	    	<form method="post" action="insertActivityHandler.php" name="ActivityInsert">
 				<lable>名稱</lable><input maxlength="255" name="name" id="name"><br>
-				<lable>類型</lable><input name="category"><br>
+				<lable>類型</lable><input name="category" id="category"><br>
 				<lable>簡介</lable><textarea cols="50" rows="10" name="description" id="description"></textarea><br>
 				<lable>報名時間</lable><input id="applyStartDate" name="applyStartDate">至<input id="applyEndDate" name="applyEndDate"><br>
 				<div id="timeSlotBlock">
@@ -35,12 +35,12 @@
 				</div>
 				<button id="addTimeSlot" name="addTimeSlot">增加活動時段</button><br>
 				<!-- <button id="addRepeatTimeSlot" name="addRepeatTimeSlot">增加重覆時段</button><br> -->
-				<lable>參與機構</lable><input name="hostName"><br>
-				<lable>人物</lable><textarea cols="50" rows="5" name="people"></textarea><br>
-				<lable>地點</lable><textarea cols="50" rows="5" name="location"></textarea><br>
-				<lable>地理座標 x:</lable><input name="geoLocationLongitude"> <lable>y:</lable><input name="geoLocationLatitude"><br>
-				<lable>費用</lable><input name="fee"><br>
-				<lable>網站</lable><input name="website"><br>
+				<lable>參與機構</lable><input name="hostName" id="hostName"><br>
+				<lable>人物</lable><textarea cols="50" rows="5" name="people" id="people"></textarea><br>
+				<lable>地點</lable><textarea cols="50" rows="5" name="location" id="location"></textarea><br>
+				<lable>地理座標 x:</lable><input name="geoLocationLongitude" id="geoLocationLongitude"> <lable>y:</lable><input name="geoLocationLatitude" id="geoLocationLatitude"><br>
+				<lable>費用</lable><input name="fee" id="fee"><br>
+				<lable>網站</lable><input name="website" id="website"><br>
 				<lable>海報連結</lable><input name="poster" id="poster"><br>
 				<lable>電話</lable><input name="tel" id="tel"><br>
 				<button name="submit" id="insertDB">送出</button>

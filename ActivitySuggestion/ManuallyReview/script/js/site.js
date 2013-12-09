@@ -5,6 +5,7 @@
 	app.sourceSite = "";
 
 	var insertDB = function(event){
+		// return;
 		event.preventDefault();
 		var name = $("#name").val();
 		var category = $("#category").val();
@@ -15,6 +16,7 @@
 		var people = $("#people").val();
 		var location = $("#location").val();
 		var geoLocationLongitude = $("#geoLocationLongitude").val();
+		var geoLocationLatitude = $("#geoLocationLatitude").val();
 		var fee = $("#fee").val();
 		var website = $("#website").val();
 		var poster = $("#poster").val();
@@ -23,6 +25,7 @@
 		var numRepeatTimeSlot = parseInt($("#numRepeatTimeSlot").val());
 
 		var uploadData = {
+			"submit" : "submit",
 			"name" : name,
 			"category" : category,
 			"description" : description,
@@ -32,6 +35,7 @@
 			"people" : people,
 			"location" : location,
 			"geoLocationLongitude" : geoLocationLongitude,
+			"geoLocationLatitude" : geoLocationLatitude,
 			"fee" : fee,
 			"website" : website,
 			"poster" : poster,
@@ -42,6 +46,10 @@
 			uploadData["datepickerStart" + i] = $("#datepickerStart" + i).val();
 			uploadData["datepickerEnd" + i] = $("#datepickerEnd" + i).val();
 		}
+		// console.log(uploadData);
+		$.post('insertActivityHandler.php', uploadData, function(data){
+			console.log(data);
+		},'json');
 	}
 
 	app.model.insertDB = insertDB;
@@ -124,9 +132,9 @@
 	var updateInputField = function(data){
 		resetTimeSlot();
 		var e = jQuery.Event( "click" );
-		$.each(data, function (index,value){
-			 console.log(index + ":" + value);
-		});
+		// $.each(data, function (index,value){
+		// 	 console.log(index + ":" + value);
+		// });
 		var decoded = $("<div/>").html(data.name).text();
 		$("#name").val(decoded);
 		decoded = $("<div/>").html(data.description).text();
