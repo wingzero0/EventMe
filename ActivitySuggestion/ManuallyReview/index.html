@@ -34,16 +34,16 @@
 				<div id="repeatTimeSlotBlock">
 				</div>
 				<button id="addTimeSlot" name="addTimeSlot">增加活動時段</button><br>
-				<button id="addRepeatTimeSlot" name="addRepeatTimeSlot">增加重覆時段</button><br>
+				<!-- <button id="addRepeatTimeSlot" name="addRepeatTimeSlot">增加重覆時段</button><br> -->
 				<lable>參與機構</lable><input name="hostName"><br>
 				<lable>人物</lable><textarea cols="50" rows="5" name="people"></textarea><br>
 				<lable>地點</lable><textarea cols="50" rows="5" name="location"></textarea><br>
 				<lable>地理座標 x:</lable><input name="geoLocationLongitude"> <lable>y:</lable><input name="geoLocationLatitude"><br>
 				<lable>費用</lable><input name="fee"><br>
 				<lable>網站</lable><input name="website"><br>
-				<lable>海報連結</lable><input name="poster"><br>
-				<lable>電話</lable><input name="tel"><br>
-				<button name="submit">送出</button>
+				<lable>海報連結</lable><input name="poster" id="poster"><br>
+				<lable>電話</lable><input name="tel" id="tel"><br>
+				<button name="submit" id="insertDB">送出</button>
 				<input name="numTimeSlot" value="0" id="numTimeSlot" type="hidden">
 				<input name="numRepeatTimeSlot" value="0" id="numRepeatTimeSlot" type="hidden">
 			</form>

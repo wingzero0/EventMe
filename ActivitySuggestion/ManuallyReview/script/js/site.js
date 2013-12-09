@@ -1,77 +1,81 @@
-;(function (){
-	var addMenu = function(){
-		//event.preventDefault();
-		$( "#textMenu" ).menu('destroy');
-		//var inner = $( "#textMenu" ).html();
-		//$( "#textMenu" ).html(inner + '<li id="menu1"><a href="#1">4e5c2c95-f2e0-4229-8373-5345e7813576.xml</a></li><li id="menu2"><a href="#2">9eacbf2b-8e11-47b8-979f-1bff288a4496.xml</a></li>');
-		$( "#textMenu" ).html('<li id="menu1"><a href="#1">4e5c2c95-f2e0-4229-8373-5345e7813576.xml</a></li><li id="menu2"><a href="#2">9eacbf2b-8e11-47b8-979f-1bff288a4496.xml</a></li>');
-		$( "#textMenu" ).menu();
-	}
-	var querySource = function(sourceSite){
-		var updateTextMenu = function(textList){
-			// set menu list
-			var html = "";
-			$.each(textList, function(index,value){
-				//html = html + "<li id="+value+"><a href='#1'>" + value + "</a></li>";
-				html = html + "<li><a href='#1' id=text"+index+">" + value + "</a></li>";
-			});
-			$( "#textMenu" ).menu('destroy');
-			$( "#textMenu" ).html(html);
-			$( "#textMenu" ).menu();
+// model
+;(function ($){
+	var app = this.app || (this.app = {});
+	app.model = {};
+	app.sourceSite = "";
 
-			// set menu click event
+	var insertDB = function(event){
+		event.preventDefault();
+		var name = $("#name").val();
+		var category = $("#category").val();
+		var description = $("#description").val();
+		var applyStartDate = $("#applyStartDate").val();
+		var applyEndDate = $("#applyEndDate").val();
+		var hostName = $("#hostName").val();
+		var people = $("#people").val();
+		var location = $("#location").val();
+		var geoLocationLongitude = $("#geoLocationLongitude").val();
+		var fee = $("#fee").val();
+		var website = $("#website").val();
+		var poster = $("#poster").val();
+		var tel = $("#tel").val();
+		var numTimeSlot = parseInt($("#numTimeSlot").val());
+		var numRepeatTimeSlot = parseInt($("#numRepeatTimeSlot").val());
 
-			var updateOriginalText = function(data){
-				$("#originalText").html(data);
-			}
-
-			var updateInputField = function(data){
-				$.each(data, function (index,value){
-					 console.log(index + ":" + value);
-				});
-				$("#name").val(data.name);
-				$("#description").val(data.description);
-			}
-			var getPlainText = function(fileName){
-				$.get("fileHandler.php", {"op":"getPlainText", "source": sourceSite, "text": fileName}, updateOriginalText, "json");
-			}
-			var getEventContainer = function(fileName){
-				$.get("eventParserHandler.php", {"op":"parseXML", "source": sourceSite, "text": fileName}, updateInputField, "json");
-			}
-
-			$.each(textList, function(index,value){
-				var id = "#text" + index;
-				//console.log(id);
-				$(id).click(function(){
-					getPlainText(value);
-					getEventContainer(value);
-				});
-			});
+		var uploadData = {
+			"name" : name,
+			"category" : category,
+			"description" : description,
+			"applyStartDate" : applyStartDate,
+			"applyEndDate" : applyEndDate,
+			"hostName" : hostName,
+			"people" : people,
+			"location" : location,
+			"geoLocationLongitude" : geoLocationLongitude,
+			"fee" : fee,
+			"website" : website,
+			"poster" : poster,
+			"tel" : tel,
+			"numTimeSlot" : numTimeSlot
+		};
+		for (var i = 1;i<= numTimeSlot;i++){
+			uploadData["datepickerStart" + i] = $("#datepickerStart" + i).val();
+			uploadData["datepickerEnd" + i] = $("#datepickerEnd" + i).val();
 		}
-		$.get("fileHandler.php", {"op":"getSourceList", "source": sourceSite},updateTextMenu, "json");
 	}
-	var queryICAM = function(){
-		//query server fold ICAM - 民政總署
-		// demo change
-		//addMenu();
-		querySource("ICAM");
-		/*
-		$("#menu1").click(function(){
-			$("#originalText").html('<p>\
-				    主頁 > 活動訊息 > 活動快訊\
-				    “十月初五的藝墟”二零一四年上半年攤位招募\
-				    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 由民政總署主辦的“十月初五的藝墟”二零一四年上半年攤位招募現正開始，歡迎擁有個人原創產品的藝術愛好者報名參加，截止日期為二零一三年十二月一日。\
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 今次招募共有五期，包括：二○一四年一月十一及十二日、二月八及九日、三月八及九日、四月十二及十三日、六月十四及十五日，下午三時至晚上八時於康公廟前地舉行。\
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 參加者可以團體或個人名義報名，費用全免。出售及展示的產品必須原創，包括售賣手工藝、設計產品或創意飲食、即場示範創作、文化藝術課程或出版品推廣等，主辦單位將以產品或創作的獨特性作為篩選主要條件，成功獲選的參加者將由專人通知。\
-				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 報名表可於辦公時間到南灣大馬路五百一十七號南通商業大廈十九樓民政總署文化康體部索取，或於民政總署網頁www.iacm.gov.mo下載。參加者可將填妥的報名表，連同產品簡介、照片的紙本及電子檔，於辦公時間送交上述地點，亦可電郵至cschiu@iacm.gov.mo或knwong@iacm.gov.mo。查詢電話：8988 4100。&nbsp;開始日期 : 2013/11/20結束日期 : 2013/12/012014十月初五的藝墟報名表 </p>');
+
+	app.model.insertDB = insertDB;
+	// app.model.queryICAM = queryICAM;
+	// app.model.getPlainText = getPlainText;
+
+}).call(this,jQuery);
+
+// view
+;(function($){
+	var app = this.app || (this.app = {});
+	var addTimeSlot = function (event){
+		event.preventDefault();
+		var num = parseInt($( "#numTimeSlot" ).val());
+		num +=1;
+		var newStart = $( "<input/>", {id:"datepickerStart" + num, name:"datepickerStart" + num  });
+		var newEnd = $( "<input/>", {id:"datepickerEnd" + num, name:"datepickerEnd" + num });
+		$("#timeSlotBlock").append("活動時間" + num);
+		$("#timeSlotBlock").append(newStart);
+		$("#timeSlotBlock").append("至");
+		$("#timeSlotBlock").append(newEnd);
+		$("#timeSlotBlock").append("<br>");
+		$( "#numTimeSlot" ).val(num);
+
+		$("#datepickerStart" + num).datetimepicker({
+			timeFormat: "HH:mm:ss",
+			dateFormat: "yy-mm-dd"
 		});
-		$("#menu2").click(function(){
-			$("#originalText").html('<p>活動二</p>');
+
+		$("#datepickerEnd" + num).datetimepicker({
+			timeFormat: "HH:mm:ss",
+			dateFormat: "yy-mm-dd"
 		});
-		*/
 	}
-	$("#addMenu").click(addMenu);
-		
 	var addRepeatTimeSlot = function(event){
 		event.preventDefault();
 		var num = parseInt($("#numRepeatTimeSlot").val());
@@ -109,47 +113,108 @@
 			dateFormat: "yy-mm-dd"
 		});
 	}
-	var addTimeSlot = function (event){
-		event.preventDefault();
-		var num = parseInt($( "#numTimeSlot" ).val());
-		num +=1;
-		var newStart = $( "<input/>", {id:"datepickerStart" + num, name:"datepickerStart" + num  });
-		var newEnd = $( "<input/>", {id:"datepickerEnd" + num, name:"datepickerEnd" + num });
-		$("#timeSlotBlock").append("活動時間" + num);
-		$("#timeSlotBlock").append(newStart);
-		$("#timeSlotBlock").append("至");
-		$("#timeSlotBlock").append(newEnd);
-		$("#timeSlotBlock").append("<br>");
-		$( "#numTimeSlot" ).val(num);
+	var resetTimeSlot = function(){
+		$("#timeSlotBlock").html("");
+		$( "#numTimeSlot" ).val("0");
+	}
+	var updateOriginalText = function(data){
+		$("#originalText").html(data);
+	}
 
-		$("#datepickerStart" + num).datetimepicker({
-			timeFormat: "HH:mm:ss",
-			dateFormat: "yy-mm-dd"
+	var updateInputField = function(data){
+		resetTimeSlot();
+		var e = jQuery.Event( "click" );
+		$.each(data, function (index,value){
+			 console.log(index + ":" + value);
 		});
+		var decoded = $("<div/>").html(data.name).text();
+		$("#name").val(decoded);
+		decoded = $("<div/>").html(data.description).text();
+		$("#description").val(decoded);
+		addTimeSlot(e); // simulate event
+		$("#datepickerStart1").val(data.startDate);
+		$("#datepickerEnd1").val(data.endDate);
+		$("#tel").val(data.tel);
+		decoded = $("<div/>").html(data.poster).text();
+		$("#poster").val(decoded);
+	}
+	var updateTextMenu = function(textList, queryHookCallBack){
+		// set menu list
+		var html = "";
+		$.each(textList, function(index,value){
+			//html = html + "<li id="+value+"><a href='#1'>" + value + "</a></li>";
+			html = html + "<li><a href='#1' id=text"+index+">" + value + "</a></li>";
+		});
+		$( "#textMenu" ).menu('destroy');
+		$( "#textMenu" ).html(html);
+		$( "#textMenu" ).menu();
 
-		$("#datepickerEnd" + num).datetimepicker({
-			timeFormat: "HH:mm:ss",
-			dateFormat: "yy-mm-dd"
+		// set click event for each entry
+		$.each(textList, function(index,value){
+			var id = "#text" + index;
+			//console.log(id);
+			$(id).click(function(){
+				queryHookCallBack(value);
+			});
 		});
 	}
-	
-	$(function() {
-	    $( "#textMenu" ).menu();
-	    $( "#sourceSite" ).buttonset();
-	    $( "#radio1").click(queryICAM);
-	    queryICAM(); // default query
-		
-		$("#applyStartDate").datetimepicker({
-			timeFormat: "HH:mm:ss",
-			dateFormat: "yy-mm-dd"
-		});
 
-		$("#applyEndDate").datetimepicker({
-			timeFormat: "HH:mm:ss",
-			dateFormat: "yy-mm-dd"
-		});	
-		$("#addTimeSlot").button().click(addTimeSlot);
-		$("#addRepeatTimeSlot").button().click(addRepeatTimeSlot);
+	$( "#textMenu" ).menu();
+    $( "#sourceSite" ).buttonset();
+    
+	$("#applyStartDate").datetimepicker({
+		timeFormat: "HH:mm:ss",
+		dateFormat: "yy-mm-dd"
 	});
 
-})();
+	$("#applyEndDate").datetimepicker({
+		timeFormat: "HH:mm:ss",
+		dateFormat: "yy-mm-dd"
+	});	
+
+	app.view = {};
+	app.view.addTimeSlot = addTimeSlot;
+	app.view.addRepeatTimeSlot = addRepeatTimeSlot;
+	app.view.resetTimeSlot = resetTimeSlot;
+	app.view.updateTextMenu = updateTextMenu;
+	app.view.updateOriginalText = updateOriginalText;
+	app.view.updateInputField = updateInputField;
+}).call(this, jQuery);
+
+// controller
+;(function(){
+	var app = this.app;
+
+	var queryHookCallBack = function(fileName){
+		var getPlainText = function(fileName){
+			$.get("fileHandler.php", {"op":"getPlainText", "source": app.model.sourceSite, "text": fileName}, app.view.updateOriginalText, "json");
+		}
+		var getEventContainer = function(fileName){
+			$.get("eventParserHandler.php", {"op":"parseXML", "source": app.model.sourceSite, "text": fileName}, app.view.updateInputField, "json");
+		}
+		getPlainText(fileName);
+		getEventContainer(fileName);
+	}
+
+	var querySource = function(sourceSite){
+		app.model.sourceSite = sourceSite; // save sourceSite at the begining of each query.
+		$.get("fileHandler.php", {"op":"getSourceList", "source": sourceSite}, function (data) {
+			app.view.updateTextMenu(data, queryHookCallBack);
+		}, "json");
+	}
+	var queryICAM = function(){
+		//query server fold ICAM - 民政總署
+		querySource("ICAM");
+	}
+
+	$(function() {
+	    // controller should controll the click event.
+		$("#addTimeSlot").button().click(app.view.addTimeSlot);
+		// $("#addRepeatTimeSlot").button().click(this.addRepeatTimeSlot);
+		$("#insertDB").button().click(app.model.insertDB);
+
+		$( "#radio1").click(queryICAM);
+	    queryICAM(); // default query
+
+	});
+}).call(this, jQuery);

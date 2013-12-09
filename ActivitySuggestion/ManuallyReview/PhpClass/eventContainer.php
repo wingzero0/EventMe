@@ -8,6 +8,7 @@ class EventContainer{
 	public $des; // description : string
 	public $hostname; // string
 	public $location; // string
+	public $tel;
 	public $GPS; // array length = 2, double
 	public $poster; // string
 	// public $originalContent; // string
@@ -25,6 +26,7 @@ class EventContainer{
 			'description' => $this->des,
 			'hostname' => $this->hostname,  // string
 			'location' => $this->location,  // string
+			'tel' => $this->tel,  // string
 			'GPS' => $this->GPS,  // array length = 2, double
 			'poster' => $this->poster,  // string
 			// 'originalContent' => $this->originalContent,  // string

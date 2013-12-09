@@ -15,8 +15,18 @@ class IACMContainer extends EventContainer{
 		$this->ParsePoster();
 		$this->ParseStartDate();
 		$this->ParseEndDate();
+		$this->ParseTel();
 		return $this->ToJSON();
 		
+	}
+	private function ParseTel(){
+		$pattern = "/查詢電話 :(.{9,9})/";
+		$ret = preg_match($pattern, $this->xmlObj->plaintext, $matches);
+		if ($ret) {
+			$this->tel = $matches[1];
+			return $this->tel;
+		}
+		return null;
 	}
 	private function ParsePoster(){
 		$imgTag = $this->xmlObj->find('img', 0);
@@ -47,7 +57,8 @@ class IACMContainer extends EventContainer{
 		$pattern = "/開始日期 :(.*?)結束日期/";
 		$ret = preg_match($pattern, $this->xmlObj->plaintext, $matches);
 		if ($ret) {
-			$this->startDate = $matches[1];
+			$pattern = "#/#";
+			$this->startDate = preg_replace($pattern, "-", $matches[1]) . " 00:00";
 			return $this->startDate;
 		}
 		return null;
@@ -56,7 +67,8 @@ class IACMContainer extends EventContainer{
 		$pattern = "/結束日期 :(.{10,10})/";
 		$ret = preg_match($pattern, $this->xmlObj->plaintext, $matches);
 		if ($ret) {
-			$this->endDate = $matches[1];
+			$pattern = "#/#";
+			$this->endDate = preg_replace($pattern, "-", $matches[1]) . " 23:59";
 			return $this->endDate;
 		}
 		return null;
