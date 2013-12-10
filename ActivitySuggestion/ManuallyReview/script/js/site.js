@@ -2,57 +2,10 @@
 ;(function ($){
 	var app = this.app || (this.app = {});
 	app.model = {};
-	app.sourceSite = "";
+	app.model.sourceSite = "";
+	app.model.fileName = "";
 
-	var insertDB = function(event){
-		// return;
-		event.preventDefault();
-		var name = $("#name").val();
-		var category = $("#category").val();
-		var description = $("#description").val();
-		var applyStartDate = $("#applyStartDate").val();
-		var applyEndDate = $("#applyEndDate").val();
-		var hostName = $("#hostName").val();
-		var people = $("#people").val();
-		var location = $("#location").val();
-		var geoLocationLongitude = $("#geoLocationLongitude").val();
-		var geoLocationLatitude = $("#geoLocationLatitude").val();
-		var fee = $("#fee").val();
-		var website = $("#website").val();
-		var poster = $("#poster").val();
-		var tel = $("#tel").val();
-		var numTimeSlot = parseInt($("#numTimeSlot").val());
-		var numRepeatTimeSlot = parseInt($("#numRepeatTimeSlot").val());
-
-		var uploadData = {
-			"submit" : "submit",
-			"name" : name,
-			"category" : category,
-			"description" : description,
-			"applyStartDate" : applyStartDate,
-			"applyEndDate" : applyEndDate,
-			"hostName" : hostName,
-			"people" : people,
-			"location" : location,
-			"geoLocationLongitude" : geoLocationLongitude,
-			"geoLocationLatitude" : geoLocationLatitude,
-			"fee" : fee,
-			"website" : website,
-			"poster" : poster,
-			"tel" : tel,
-			"numTimeSlot" : numTimeSlot
-		};
-		for (var i = 1;i<= numTimeSlot;i++){
-			uploadData["datepickerStart" + i] = $("#datepickerStart" + i).val();
-			uploadData["datepickerEnd" + i] = $("#datepickerEnd" + i).val();
-		}
-		// console.log(uploadData);
-		$.post('insertActivityHandler.php', uploadData, function(data){
-			console.log(data);
-		},'json');
-	}
-
-	app.model.insertDB = insertDB;
+	// app.model.insertDB = insertDB;
 	// app.model.queryICAM = queryICAM;
 	// app.model.getPlainText = getPlainText;
 
@@ -121,16 +74,32 @@
 			dateFormat: "yy-mm-dd"
 		});
 	}
-	var resetTimeSlot = function(){
+	var resetInputField = function(){
+		$("#name").val("");
+		$("#category").val("");
+		$("#description").val("");
+		$("#applyStartDate").val("");
+		$("#applyEndDate").val("");
 		$("#timeSlotBlock").html("");
+		$("#repeatTimeSlotBlock").html("");
+		$("#hostName").val("");
+		$("#people").val("");
+		$("#location").val("");
+		$("#geoLocationLongitude").val("");
+		$("#geoLocationLatitude").val("");
+		$("#fee").val("");
+		$("#website").val("");
+		$("#poster").val("");
+		$("#tel").val("");
 		$( "#numTimeSlot" ).val("0");
+		$("#numRepeatTimeSlot").val("0");
 	}
 	var updateOriginalText = function(data){
 		$("#originalText").html(data);
 	}
 
 	var updateInputField = function(data){
-		resetTimeSlot();
+		resetInputField();
 		var e = jQuery.Event( "click" );
 		// $.each(data, function (index,value){
 		// 	 console.log(index + ":" + value);
@@ -157,6 +126,9 @@
 		$( "#textMenu" ).html(html);
 		$( "#textMenu" ).menu();
 
+		resetInputField();
+		updateOriginalText(""); // same as reset
+
 		// set click event for each entry
 		$.each(textList, function(index,value){
 			var id = "#text" + index;
@@ -165,6 +137,58 @@
 				queryHookCallBack(value);
 			});
 		});
+	}
+	var updateTips = function(message){
+		var tips = $( "#tips" );
+        tips.text( message );
+        tips.addClass( "ui-state-highlight" );
+        // console.log(message);
+        setTimeout(function() {
+                tips.removeClass( "ui-state-highlight", 1500 );
+                tips.html("&nbsp;");
+        }, 5000 );
+	}
+	var getInputFieldValue = function(){
+		var name = $("#name").val();
+		var category = $("#category").val();
+		var description = $("#description").val();
+		var applyStartDate = $("#applyStartDate").val();
+		var applyEndDate = $("#applyEndDate").val();
+		var hostName = $("#hostName").val();
+		var people = $("#people").val();
+		var location = $("#location").val();
+		var geoLocationLongitude = $("#geoLocationLongitude").val();
+		var geoLocationLatitude = $("#geoLocationLatitude").val();
+		var fee = $("#fee").val();
+		var website = $("#website").val();
+		var poster = $("#poster").val();
+		var tel = $("#tel").val();
+		var numTimeSlot = parseInt($("#numTimeSlot").val());
+		var numRepeatTimeSlot = parseInt($("#numRepeatTimeSlot").val());
+
+		var uploadData = {
+			"submit" : "submit",
+			"name" : name,
+			"category" : category,
+			"description" : description,
+			"applyStartDate" : applyStartDate,
+			"applyEndDate" : applyEndDate,
+			"hostName" : hostName,
+			"people" : people,
+			"location" : location,
+			"geoLocationLongitude" : geoLocationLongitude,
+			"geoLocationLatitude" : geoLocationLatitude,
+			"fee" : fee,
+			"website" : website,
+			"poster" : poster,
+			"tel" : tel,
+			"numTimeSlot" : numTimeSlot
+		};
+		for (var i = 1;i<= numTimeSlot;i++){
+			uploadData["datepickerStart" + i] = $("#datepickerStart" + i).val();
+			uploadData["datepickerEnd" + i] = $("#datepickerEnd" + i).val();
+		}
+		return uploadData;
 	}
 
 	$( "#textMenu" ).menu();
@@ -183,17 +207,20 @@
 	app.view = {};
 	app.view.addTimeSlot = addTimeSlot;
 	app.view.addRepeatTimeSlot = addRepeatTimeSlot;
-	app.view.resetTimeSlot = resetTimeSlot;
+	app.view.resetInputField = resetInputField;
 	app.view.updateTextMenu = updateTextMenu;
 	app.view.updateOriginalText = updateOriginalText;
 	app.view.updateInputField = updateInputField;
+	app.view.getInputFieldValue = getInputFieldValue;
+	app.view.updateTips = updateTips;
 }).call(this, jQuery);
 
 // controller
 ;(function(){
 	var app = this.app;
 
-	var queryHookCallBack = function(fileName){
+	var queryHookCallBack = function(fileName){ // trick by clicking on a menu entry
+		app.model.fileName = fileName;
 		var getPlainText = function(fileName){
 			$.get("fileHandler.php", {"op":"getPlainText", "source": app.model.sourceSite, "text": fileName}, app.view.updateOriginalText, "json");
 		}
@@ -214,12 +241,36 @@
 		//query server fold ICAM - 民政總署
 		querySource("ICAM");
 	}
+	var clearDoc = function(){
+		$.get("fileHandler.php",{"op": "clearDoc", "source": app.model.sourceSite, "text": app.model.fileName}, function(data){
+			if (parseInt(data.ret) == 1){
+				querySource(app.model.sourceSite);
+			}else{
+				app.view.updateTips(data.error);
+				console.log(data);
+			}
+		}, "json");
+	}
+	var insertDB = function(event){
+		event.preventDefault();
+		var uploadData = app.view.getInputFieldValue();
+		$.post('insertActivityHandler.php', uploadData, function(data){
+			if (parseInt(data.ret)==1){
+				app.view.updateTips("Insert Database successful");
+				clearDoc();
+			}else{
+				console.log(data);
+				app.view.updateTips(data.error);
+			}
+		},'json');
+	}
+
 
 	$(function() {
 	    // controller should controll the click event.
 		$("#addTimeSlot").button().click(app.view.addTimeSlot);
 		// $("#addRepeatTimeSlot").button().click(this.addRepeatTimeSlot);
-		$("#insertDB").button().click(app.model.insertDB);
+		$("#insertDB").button().click(insertDB);
 
 		$( "#radio1").click(queryICAM);
 	    queryICAM(); // default query

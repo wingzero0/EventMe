@@ -24,6 +24,18 @@ if ($s_var["op"] == "getSourceList"){
 	}else{
 		echo json_encode($ret);
 	}
+}else if ($s_var["op"] == "clearDoc"){
+	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=clearDoc&source=ICAM&text=test.xml
+	$src = "ArticleTmp/" . $s_var["source"] . "/" . $s_var["text"];
+	$des = "ArticleComplete/" . $s_var["source"] . "/" . $s_var["text"];
+	$flag = $fm->MoveDoc($src, $des);
+	$ret = array("ret" => -1);
+	if ($flag == true){
+		$ret["ret"] = 1;
+	}else{
+		$ret["error"] = "operation fail";
+	}
+	echo json_encode($ret);
 }
 
 ?>

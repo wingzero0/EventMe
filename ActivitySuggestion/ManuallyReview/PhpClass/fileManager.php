@@ -25,6 +25,9 @@ class FileManager{
 			return array("error" => $errorStr);
 		}
 	}
+	public function MoveDoc($srcPath, $desPath){
+		return rename($srcPath, $desPath);
+	}
 	public function GetFileRowContent($path){
 		// may contain xml format
 		if ($fp = fopen($path, "r")){
