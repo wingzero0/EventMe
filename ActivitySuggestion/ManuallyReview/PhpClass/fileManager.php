@@ -55,6 +55,8 @@ class FileManager{
 		if ($fp = fopen($path, "r")){
 			// read from file
 			$xmlStr = "";
+			// skip the first line;
+			$line = fgets($fp);
 			while($line = fgets($fp)){
 				$xmlStr .= trim($line);
 			}

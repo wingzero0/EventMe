@@ -95,7 +95,8 @@
 		$("#numRepeatTimeSlot").val("0");
 	}
 	var updateOriginalText = function(data){
-		$("#originalText").html(data);
+		// $("#originalText").html(data);
+		$("#originalText").html(data.content);
 	}
 
 	var updateInputField = function(data){
@@ -127,7 +128,7 @@
 		$( "#textMenu" ).menu();
 
 		resetInputField();
-		updateOriginalText(""); // same as reset
+		updateOriginalText({content:""}); // same as reset
 
 		// set click event for each entry
 		$.each(textList, function(index,value){
@@ -221,7 +222,7 @@
 
 	var queryHookCallBack = function(fileName){ // trick by clicking on a menu entry
 		app.model.fileName = fileName;
-		var getPlainText = function(fileName){
+		var getPlainText = function(fileName){ // should be rename to "getWholeFile"
 			$.get("fileHandler.php", {"op":"getPlainText", "source": app.model.sourceSite, "text": fileName}, app.view.updateOriginalText, "json");
 		}
 		var getEventContainer = function(fileName){
@@ -251,6 +252,16 @@
 			}
 		}, "json");
 	}
+	var skipDoc = function(){
+		$.get("fileHandler.php",{"op": "skipDoc", "source": app.model.sourceSite, "text": app.model.fileName}, function(data){
+			if (parseInt(data.ret) == 1){
+				querySource(app.model.sourceSite);
+			}else{
+				app.view.updateTips(data.error);
+				console.log(data);
+			}
+		}, "json");
+	}
 	var insertDB = function(event){
 		event.preventDefault();
 		var uploadData = app.view.getInputFieldValue();
@@ -266,12 +277,16 @@
 	}
 
 
+
 	$(function() {
 	    // controller should controll the click event.
 		$("#addTimeSlot").button().click(app.view.addTimeSlot);
 		// $("#addRepeatTimeSlot").button().click(this.addRepeatTimeSlot);
 		$("#insertDB").button().click(insertDB);
-
+		$("#skipDoc").button().click(function(event){
+			event.preventDefault();
+			skipDoc();
+		});
 		$( "#radio1").click(queryICAM);
 	    queryICAM(); // default query
 
