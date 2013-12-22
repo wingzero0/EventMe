@@ -10,12 +10,12 @@ Utility::AddslashesToGETField("text", $s_var);
 
 $fm = new fileManager();
 if ($s_var["op"] == "getSourceList"){
-	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=getSourceList&source=ICAM
+	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=getSourceList&source=IACM
 	$entries = $fm->ListDocs("ArticleTmp/" . $s_var["source"] . "/");
 	echo json_encode($entries);
 	//var_dump($entries);
 }else if ($s_var["op"] == "getPlainText"){
-	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=getPlainText&source=ICAM&text=94b43a8b-c608-4c70-a7df-488c00d351b6.xml
+	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=getPlainText&source=IACM&text=94b43a8b-c608-4c70-a7df-488c00d351b6.xml
 	
 	$ret["content"] = $fm->GetTrimContent("ArticleTmp/" . $s_var["source"] . "/" . $s_var["text"]);
 	$ret["ret"] = -1;
@@ -28,7 +28,7 @@ if ($s_var["op"] == "getSourceList"){
 		echo json_encode($ret);
 	}
 }else if ($s_var["op"] == "clearDoc" || $s_var["op"] == "skipDoc"){
-	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=clearDoc&source=ICAM&text=test.xml
+	// test URL http://localhost/ActivitySuggestion/ManuallyReview/fileHandler.php?op=clearDoc&source=IACM&text=test.xml
 	$src = "ArticleTmp/" . $s_var["source"] . "/" . $s_var["text"];
 	if ($s_var["op"] == "clearDoc"){
 		$des = "ArticleComplete/" . $s_var["source"] . "/" . $s_var["text"];

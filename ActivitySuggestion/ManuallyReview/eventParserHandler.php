@@ -12,7 +12,7 @@ Utility::AddslashesToGETField("text", $s_var);
 
 $fm = new fileManager();
 if ($s_var["op"] == "parseXML"){
-	// test URL http://localhost/ActivitySuggestion/ManuallyReview/eventParserHandler.php?op=parseXML&source=ICAM&text=94b43a8b-c608-4c70-a7df-488c00d351b6.xml
+	// test URL http://localhost/ActivitySuggestion/ManuallyReview/eventParserHandler.php?op=parseXML&source=IACM&text=94b43a8b-c608-4c70-a7df-488c00d351b6.xml
 
 	$xmlStr = $fm->GetTrimContent("ArticleTmp/" . $s_var["source"] . "/" . $s_var["text"]);
 	$xml = $fm->ToXML($xmlStr);

@@ -6,7 +6,7 @@
 	app.model.fileName = "";
 
 	// app.model.insertDB = insertDB;
-	// app.model.queryICAM = queryICAM;
+	// app.model.queryIACM = queryIACM;
 	// app.model.getPlainText = getPlainText;
 
 }).call(this,jQuery);
@@ -238,9 +238,9 @@
 			app.view.updateTextMenu(data, queryHookCallBack);
 		}, "json");
 	}
-	var queryICAM = function(){
-		//query server fold ICAM - 民政總署
-		querySource("ICAM");
+	var queryIACM = function(){
+		//query server fold IACM - 民政總署
+		querySource("IACM");
 	}
 	var clearDoc = function(){
 		$.get("fileHandler.php",{"op": "clearDoc", "source": app.model.sourceSite, "text": app.model.fileName}, function(data){
@@ -287,8 +287,8 @@
 			event.preventDefault();
 			skipDoc();
 		});
-		$( "#radio1").click(queryICAM);
-	    queryICAM(); // default query
+		$( "#radio1").click(queryIACM);
+	    queryIACM(); // default query
 
 	});
 }).call(this, jQuery);
