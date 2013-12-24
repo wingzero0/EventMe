@@ -109,10 +109,16 @@
 		$("#name").val(decoded);
 		decoded = $("<div/>").html(data.description).text();
 		$("#description").val(decoded);
-		addTimeSlot(e); // simulate event
-		$("#datepickerStart1").val(data.startDate);
-		$("#datepickerEnd1").val(data.endDate);
+		if ( data.startDate || data.endDate ){
+			addTimeSlot(e); // simulate event
+			$("#datepickerStart1").val(data.startDate);
+			$("#datepickerEnd1").val(data.endDate);
+		}
+		
 		$("#tel").val(data.tel);
+		$("#location").val(data.location);
+		$("#geoLocationLatitude").val(data.GPS.geoLocationLatitude);
+		$("#geoLocationLongitude").val(data.GPS.geoLocationLongitude);
 		decoded = $("<div/>").html(data.poster).text();
 		$("#poster").val(decoded);
 	}
@@ -288,6 +294,9 @@
 			skipDoc();
 		});
 		$( "#radio1").click(queryIACM);
+		$( "#radio2").click(function (){
+			querySource("Qoos");
+		});
 	    queryIACM(); // default query
 
 	});

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . "/PhpClass/fileManager.php";
 require_once __DIR__ . '/PhpClass/IACMContainer.php';
+require_once __DIR__ . '/PhpClass/qoosContainer.php';
 require_once __DIR__ . '/../utility.php';
 
 
@@ -18,8 +19,17 @@ if ($s_var["op"] == "parseXML"){
 	$xml = $fm->ToXML($xmlStr);
 	
 	if ($xml){
-		$iacm = new IACMContainer($xml);
-		$jsonContent = $iacm->Parse();
+		$eventContainer = NULL;
+		if ($s_var["source"] == "IACM"){
+			$eventContainer = new IACMContainer($xml);
+		}else if ($s_var["source"] == "Qoos"){
+			$eventContainer = new QoosContainer($xml);
+		}else{
+			// default
+			$eventContainer = new IACMContainer($xml);
+		}
+		
+		$jsonContent = $eventContainer->Parse();
 		echo $jsonContent;
 	}else{
 		if ($xmlStr == null){

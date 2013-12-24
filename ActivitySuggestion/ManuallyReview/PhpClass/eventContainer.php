@@ -3,7 +3,7 @@
 require_once __DIR__ . '/../../utility.php';
 require_once LIBPATH . '/simple_html_dom.php';
 
-class EventContainer{
+abstract class EventContainer{
 	public $name;
 	public $des; // description : string
 	public $hostname; // string
@@ -35,6 +35,7 @@ class EventContainer{
 		);  // string
 		return Utility::UnicodeJsonEncode($phpArray);
 	}
+	public abstract function Parse();
 	/*
 	public function constructWithXML($xml){
 		$this->xmlStr = $xml;

@@ -307,7 +307,7 @@ function UnlockTables(){
 參與機構<input name="hostName"><br>
 人物<textarea cols="50" rows="5" name="people"></textarea><br>
 地點<textarea cols="50" rows="5" name="location"></textarea><br>
-地理座標 x:<input name="geoLocationLongitude"> y:<input name="geoLocationLatitude"><br>
+地理座標 lat:<input name="geoLocationLatitude"> lng:<input name="geoLocationLongitude"> <br>
 費用<input name="fee"><br>
 網站<input name="website"><br>
 海報連結<input name="poster"><br>
