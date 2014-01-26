@@ -1,24 +1,32 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.htmlcleaner.CleanerProperties;
 
 
 public abstract class SiteCrawler {
-	/**
-	 * @param args
-	 */
 	private CleanerProperties props;
+	public String baseURL = "";
+	public String archiveMasterListPath = "";
+	public String masterListPath = "";
+	public String articlePath = "";
 	static String ReadFile(String path, Charset encoding) throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
 		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
@@ -60,5 +68,43 @@ public abstract class SiteCrawler {
 	}
 	public abstract List<String> GetNewMasterList();
 	public abstract void CrawlMasterList();
-	public abstract void ArchiveMasterList();
+	
+	/**
+	 * It will do the archive operation.
+	 * It add the master list into archive list.
+	 */
+	public void ArchiveMasterList(){
+		List<String> masterList = SiteCrawler.ReadLines(this.masterListPath);
+		List<String> archiveList = SiteCrawler.ReadLines(this.archiveMasterListPath);
+		
+		Iterator<String> it = masterList.iterator();
+		Set<String> masterHashSet = new HashSet<String>();
+		while (it.hasNext()){
+			masterHashSet.add(it.next());
+		}
+
+		it  = archiveList.iterator();
+		Set<String> archiveHashSet = new HashSet<String>();
+		while (it.hasNext()){
+			archiveHashSet.add(it.next());
+		}
+		
+		archiveHashSet.addAll(masterHashSet);
+		
+		Writer writer = null;
+
+		try {
+		    writer = new BufferedWriter(new OutputStreamWriter(
+		          new FileOutputStream(this.archiveMasterListPath), StandardCharsets.UTF_8));
+		    it  = archiveHashSet.iterator();
+			while (it.hasNext()){
+				writer.write(it.next() + "\n");
+			}
+		} catch (IOException ex) {
+		  // report
+			ex.printStackTrace();
+		} finally {
+		   try {writer.close();} catch (Exception ex) {}
+		}
+	}
 }

@@ -1,6 +1,5 @@
 import java.io.BufferedWriter;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
@@ -11,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,11 +29,12 @@ import org.htmlcleaner.TagNode;
  * 
  */
 public class IACMCrawler extends SiteCrawler {
-	
-	public static final String baseURL = "http://www.iacm.gov.mo";
-	public String archiveMasterListPath = "IACMArchiveMasterList.txt";
-	public String masterListPath = "IACMMasterList.txt";
-	public String articlePath = "ArticleTmp/IACM/";
+	public IACMCrawler(){
+		this.baseURL = "http://www.iacm.gov.mo";
+		this.archiveMasterListPath = "IACMArchiveMasterList.txt";
+		this.masterListPath = "IACMMasterList.txt";
+		this.articlePath = "ArticleTmp/IACM/";
+	}
 	public List<String> GetNewMasterList(){
 		try {
 			URL u = new URL("http://www.iacm.gov.mo/c/activity/list/");
@@ -122,8 +121,8 @@ public class IACMCrawler extends SiteCrawler {
         		//hrefString = serializer.getAsString(hrefs[i]);
         		
         		hrefString = hrefs[i].getAttributeByName("href");
-        		System.out.println(IACMCrawler.baseURL + hrefString);
-				masterList.add(IACMCrawler.baseURL + hrefString);
+        		System.out.println(this.baseURL + hrefString);
+				masterList.add(this.baseURL + hrefString);
 				
             }
 		}
@@ -223,43 +222,5 @@ public class IACMCrawler extends SiteCrawler {
 		System.out.println("Done");
 		
 		return myNodes[0];
-	}
-	/**
-	 * It will do the archive operation.
-	 * It add the master list into archive list.
-	 */
-	public void ArchiveMasterList(){
-		List<String> masterList = SiteCrawler.ReadLines(this.masterListPath);
-		List<String> archiveList = SiteCrawler.ReadLines(this.archiveMasterListPath);
-		
-		Iterator<String> it = masterList.iterator();
-		Set<String> masterHashSet = new HashSet<String>();
-		while (it.hasNext()){
-			masterHashSet.add(it.next());
-		}
-
-		it  = archiveList.iterator();
-		Set<String> archiveHashSet = new HashSet<String>();
-		while (it.hasNext()){
-			archiveHashSet.add(it.next());
-		}
-		
-		archiveHashSet.addAll(masterHashSet);
-		
-		Writer writer = null;
-
-		try {
-		    writer = new BufferedWriter(new OutputStreamWriter(
-		          new FileOutputStream(this.archiveMasterListPath), StandardCharsets.UTF_8));
-		    it  = archiveHashSet.iterator();
-			while (it.hasNext()){
-				writer.write(it.next() + "\n");
-			}
-		} catch (IOException ex) {
-		  // report
-			ex.printStackTrace();
-		} finally {
-		   try {writer.close();} catch (Exception ex) {}
-		}
 	}
 };

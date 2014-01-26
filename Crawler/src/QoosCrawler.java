@@ -25,10 +25,12 @@ import org.htmlcleaner.TagNode;
  * It ignores category of event. All event will be held in upcoming 3 months 
  */
 public class QoosCrawler extends SiteCrawler {
-	public static final String baseURL = "http://events.qoos.com/";
-	public static final String archiveMasterListPath = "qoosArchiveMasterList.txt";
-	public static final String masterListPath = "qoosMasterList.txt";
-	public static final String articlePath = "ArticleTmp/Qoos/";
+	public QoosCrawler(){
+		this.baseURL = "http://events.qoos.com/";
+		this.archiveMasterListPath = "qoosArchiveMasterList.txt";
+		this.masterListPath = "qoosMasterList.txt";
+		this.articlePath = "ArticleTmp/Qoos/";
+	}
 	public List<String> GetNewMasterList(){
 		// get the list from EventListPage of IACM
 		List<String> masterList = this.ParsingEventListPage();
@@ -93,8 +95,8 @@ public class QoosCrawler extends SiteCrawler {
 	            
 				if (hrefs.length > 0){
 		            String hrefString = hrefs[0].getAttributeByName("href");
-		        	System.out.println(QoosCrawler.baseURL + hrefString);
-					masterList.add(QoosCrawler.baseURL + hrefString);
+		        	System.out.println(baseURL + hrefString);
+					masterList.add(baseURL + hrefString);
 				}
 			}
 		}
@@ -163,10 +165,5 @@ public class QoosCrawler extends SiteCrawler {
 				e.printStackTrace();
 			}
 		}
-	}
-	@Override
-	public void ArchiveMasterList() {
-		// TODO Auto-generated method stub
-		
 	}
 }
