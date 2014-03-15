@@ -16,3 +16,8 @@ removeDoc:
 crawlDoc:
 	java -classpath "./TerminalBin/:./*" Main crawlDoc IACM
 	java -classpath "./TerminalBin/:./*" Main crawlDoc Qoos
+	
+moveDoc:
+	mv ArticleTmp/IACM/* /var/www/ActivitySuggestion/ManuallyReview/ArticleTmp/IACM/
+	mv ArticleTmp/Qoos/* /var/www/ActivitySuggestion/ManuallyReview/ArticleTmp/Qoos/
+	
